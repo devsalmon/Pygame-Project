@@ -22,7 +22,7 @@ pygame.display.set_caption("Road Rush")
 ## -- Define the class Player which is a sprite
 class Player(pygame.sprite.Sprite):
     # Define the constructor for Player
-    def __init__(self, xpos, ypos):
+    def __init__(self):
         
         # Call the sprite constructor
         super().__init__()
@@ -33,8 +33,8 @@ class Player(pygame.sprite.Sprite):
         self.image.fill(WHITE)
         # Set the position of the sprite
         self.rect = self.image.get_rect()
-        self.rect.x = xpos
-        self.rect.y = ypos
+        self.rect.x = 300
+        self.rect.y = 20
         self.v_gravity = 1
         self.h_speed = 0
 
@@ -43,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.rect.y + self.v_gravity
         #Reset position of Player once off the screen
         if self.rect.y >= size[1]:
-            self.rect.x = 100
+            self.rect.x = 300
             self.rect.y = 20
     #End Method
 
@@ -74,10 +74,9 @@ class Path(pygame.sprite.Sprite):
 
     def update(self):    
         self.rect.x -= self.x_speed
-
+        
     def scroll(self, val):
         self.x_speed = val
-    # End Method
 
 # End Path class
 
@@ -87,12 +86,14 @@ all_sprites_group = pygame.sprite.Group()
 path_group = pygame.sprite.Group()
 
 # Create the Objects
-my_Player = Player(100, 20)
+my_Player = Player()
 all_sprites_group.add(my_Player)
 
-my_Path = Path(100, 300)
+my_Path = Path(100, 400)
 path_group.add(my_Path)
 all_sprites_group.add(my_Player)
+
+#Functions
 
 # -- Manages how fast screen refreshes
 clock = pygame.time.Clock()
@@ -100,8 +101,8 @@ clock = pygame.time.Clock()
 # -- Exit game flag set to false
 done = False
 
-    # SPAWN RAMP
-for count in range(5000):
+# SPAWN RAMP
+for count in range(1000):
     if my_Path.rect.y <= 100:
         turnDown = True
     if my_Path.rect.y >= 500:
@@ -111,7 +112,6 @@ for count in range(5000):
         my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y - 1)
         path_group.add(my_Path)
         all_sprites_group.add(my_Path)
-        #print(my_Player.rect.y)
     if turnDown == True:
         #Makes ramp go down
         my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y + 1)
@@ -121,6 +121,7 @@ for count in range(5000):
 
 ### -- Game Loop
 while not done:
+    print(my_Player.rect.y)
     
     # -- User inputs here
     for event in pygame.event.get():
@@ -130,8 +131,9 @@ while not done:
             if event.key == pygame.K_SPACE: # - If the left key pressed
                 for foo in path_group:
                     #if foo.rect ==
-                    foo.scroll(1)
+                    foo.scroll(3)
                     #foo.rect.y += 10
+                #Next
                 #my_Path.scroll(1)
                 #my_Player.player_set_speed(2) # - Speed set to 4   
         elif event.type == pygame.KEYUP: # - A key released            
@@ -139,10 +141,10 @@ while not done:
                 for foo in path_group:
                     foo.scroll(0)
                 #my_Player.player_set_speed(0) # Speed set to 0
-                
-                #Endif
+                #Next
             #Endif
         #Endif
+    #Next
 
 # -- Game logic goes after this comment
 
@@ -161,7 +163,7 @@ while not done:
         #my_Player.rect.y = player_path_collision_group[0].rect.top
         #my_Player.rect.y - 1
     else:
-        my_Player.player_set_v_gravity(2)
+        my_Player.player_set_v_gravity(3)
     #Endif
         
 # -- Screen background is BLACK
