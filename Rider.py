@@ -71,15 +71,12 @@ class Path(pygame.sprite.Sprite):
         self.rect.x = xpos
         self.rect.y = ypos
         self.x_speed = 0
-        self.y_speed = 0
 
     def update(self):    
         self.rect.x -= self.x_speed
-        self.rect.y += self.y_speed
 
     def scroll(self, val):
         self.x_speed = val
-        self.y_speed = val
     # End Method
 
 # End Path class
@@ -103,6 +100,25 @@ clock = pygame.time.Clock()
 # -- Exit game flag set to false
 done = False
 
+    # SPAWN RAMP
+for count in range(5000):
+    if my_Path.rect.y <= 100:
+        turnDown = True
+    if my_Path.rect.y >= 500:
+        turnDown = False
+    if turnDown == False:
+        #Makes ramp go up
+        my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y - 1)
+        path_group.add(my_Path)
+        all_sprites_group.add(my_Path)
+        #print(my_Player.rect.y)
+    if turnDown == True:
+        #Makes ramp go down
+        my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y + 1)
+        path_group.add(my_Path)
+        all_sprites_group.add(my_Path)
+#Nextcount
+
 ### -- Game Loop
 while not done:
     
@@ -113,14 +129,16 @@ while not done:
         elif event.type == pygame.KEYDOWN: # - A key is down
             if event.key == pygame.K_SPACE: # - If the left key pressed
                 for foo in path_group:
-                    my_Path.rect.x -= 1
-                    my_Path.rect.y += 1
+                    #if foo.rect ==
+                    foo.scroll(1)
+                    #foo.rect.y += 10
                 #my_Path.scroll(1)
                 #my_Player.player_set_speed(2) # - Speed set to 4   
         elif event.type == pygame.KEYUP: # - A key released            
             if event.key == pygame.K_SPACE:
-                #my_Path.scroll(0)
-                my_Player.player_set_speed(0) # Speed set to 0
+                for foo in path_group:
+                    foo.scroll(0)
+                #my_Player.player_set_speed(0) # Speed set to 0
                 
                 #Endif
             #Endif
@@ -144,34 +162,8 @@ while not done:
         #my_Player.rect.y - 1
     else:
         my_Player.player_set_v_gravity(2)
-        
-    #Nextcount
-
-    # When not touching path, Player should fall
-    #if my_Player.rect.x >= 400:
-     #   my_Player.player_set_v_gravity(2)
     #Endif
-
-    # SPAWN RAMP
-    #for count in range(120):
-    if my_Path.rect.y <= 100:
-        turnDown = True
-    if my_Path.rect.y >= 500:
-        turnDown = False
-    if turnDown == False:
-        #Makes ramp go up
-        my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y - 1)
-        path_group.add(my_Path)
-        all_sprites_group.add(my_Path)
-        #print(my_Player.rect.y)
-    if turnDown == True:
-        #Makes ramp go down
-        my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y + 1)
-        path_group.add(my_Path)
-        all_sprites_group.add(my_Path)
-    #Nextcount
-
-
+        
 # -- Screen background is BLACK
     screen.fill(BLACK)
 
