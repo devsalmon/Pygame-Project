@@ -4,6 +4,7 @@ import random
 
 # -- Global Constants
 turnDown = False
+collision = False
 
 #colours
 BLACK = (0,0,0)
@@ -45,6 +46,7 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y >= size[1]:
             self.rect.x = 300
             self.rect.y = 20
+            #pygame.quit()
     #End Method
 
     def player_set_speed(self, val):
@@ -121,7 +123,39 @@ for count in range(1000):
 
 ### -- Game Loop
 while not done:
-    print(my_Player.rect.y)
+
+    # Path and player collisions
+    player_path_collision_group = pygame.sprite.spritecollide(my_Player, path_group, False)
+    #count = 1
+    #for e in player_path_collision_group:
+        #print(count + ":" + e.rect.x)
+        #print(count + ":" + e.rect.y)
+        #print("P:" + my_Player.rect.x + 20)
+        #print(":" + my_Player.rect.y + 20)
+        #count = count + 1
+    if player_path_collision_group:
+        collision = True
+        my_Player.player_set_v_gravity(0)
+    else:
+        collision = False
+      ##  my_Player.player_set_v_gravity(0)
+        ##for foo in player_path_collision_group:
+          ##  my_Player.rect.y = foo.rect.y
+        #my_Player.rect.y = my_Player.rect.y
+        #my_Player.rect.y = player_path_collision_group[0].rect.
+            #my_Player.rect.y - 1
+
+    ##else:
+      ##  my_Player.player_set_v_gravity(3)
+    #Endif
+    if collision == True:
+        for foo in player_path_collision_group:
+            my_Player.rect.y = foo.rect.y - 20 #This method works. PLayers bottom right tho must be touching so it can move up if it is moved forwards.
+        #if my_Player.rect.y == foo.rect.y and my_Player.rect.x == foo.rect.x:
+    else:
+        my_Player.player_set_v_gravity(1)
+      #  elif my_Player.rect.y != foo.rect.y and my_Player.rect.x != foo.rect.x:
+       #     my_Player.player_set_v_gravity(1)          
     
     # -- User inputs here
     for event in pygame.event.get():
@@ -131,7 +165,7 @@ while not done:
             if event.key == pygame.K_SPACE: # - If the left key pressed
                 for foo in path_group:
                     #if foo.rect ==
-                    foo.scroll(3)
+                    foo.scroll(1)
                     #foo.rect.y += 10
                 #Next
                 #my_Path.scroll(1)
@@ -148,23 +182,6 @@ while not done:
 
 # -- Game logic goes after this comment
 
-    # Path and player collisions
-    player_path_collision_group = pygame.sprite.spritecollide(my_Player, path_group, False)
-    #count = 1
-    #for e in player_path_collision_group:
-        #print(count + ":" + e.rect.x)
-        #print(count + ":" + e.rect.y)
-        #print("P:" + my_Player.rect.x + 20)
-        #print(":" + my_Player.rect.y + 20)
-        #count = count + 1
-    if player_path_collision_group:
-        my_Player.player_set_v_gravity(0)
-        my_Player.rect.y = my_Player.rect.y - 1
-        #my_Player.rect.y = player_path_collision_group[0].rect.top
-        #my_Player.rect.y - 1
-    else:
-        my_Player.player_set_v_gravity(3)
-    #Endif
         
 # -- Screen background is BLACK
     screen.fill(BLACK)
