@@ -62,7 +62,7 @@ class Path(pygame.sprite.Sprite):
     def update(self):    
         self.rect.x -= self.x_speed
         
-    def scroll(self, val):
+    def scroll(self, val): #NEED TO DO X ACCELERATION NOW
         self.x_speed = val
 
 # End Path class
