@@ -5,12 +5,6 @@ from pygame.math import Vector2
 from Classes import *
 from Settings import *
 
-def rampbottom_curve():
-    self.my_Path = Path(self.my_Path.rect.x + self.my_Path.rect.width, self.my_Path.rect.y - 1)
-    #pygame.draw.arc(screen, WHITE ,[88,145,61,25], 30,30,10)
-    #cause im barely gonna be able to see u if anything and cause of maria.
-
-
 class Game(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -22,12 +16,22 @@ class Game(pygame.sprite.Sprite):
         self.collision = False
         self.clock = pygame.time.Clock()
         self.running = True
+        self.t = 0
+        self.flying = True
+        self.t2 = 0
 
     def play_Smusic(self):
         song_queue = ["TheFatRat - Unity.mp3", "The Cranberries - Zombie (Lost Sky Remix).mp3",
                            "Monody.mp3", "LAY LAY.mp3", "Xenogenesis.mp3"]
-        pygame.mixer.music.load(song_queue[random.randrange(0, len(song_queue))])
+        pygame.mixer.music.load(random.choice(song_queue))
         pygame.mixer.music.play()
+        #pygame.mixer.music.set_volume(0.0)
+
+    def straightPath(self):
+        for count in range(250):
+            self.my_Path = Path(self.my_Path.rect.x + self.my_Path.width, self.my_Path.rect.y)
+            self.path_group.add(self.my_Path)
+            self.all_sprites_group.add(self.my_Path)
 
     def manualCurve1(self):
         for count in range(5):
@@ -64,9 +68,11 @@ class Game(pygame.sprite.Sprite):
          #   my_Path = Path(my_Path.rect.x + my_Path.rect.width, my_Path.rect.y - 1)
 
     def pathGap1(self):
-        self.my_Path = Path(self.my_Path.rect.x + 100, self.my_Path.rect.y)
-        self.path_group.add(self.my_Path)
-        self.all_sprites_group.add(self.my_Path)
+        self.my_Path = Path(self.my_Path.rect.x + 60, self.my_Path.rect.y)
+        for count in range(30):
+            self.my_Path = Path(self.my_Path.rect.x + self.my_Path.width, self.my_Path.rect.y)
+            self.path_group.add(self.my_Path)
+            self.all_sprites_group.add(self.my_Path)
 
     def downRamp(self):
         #after certain x value. harder path functions start.
@@ -86,9 +92,12 @@ class Game(pygame.sprite.Sprite):
             self.all_sprites_group.add(self.my_Path)
 
     def createPath_d(self):
-        paths = [Game.pathGap1, Game.manualCurve1, Game.manualCurve2, Game.downRamp]
-        #(random.choice)
-        random.choice(paths)(self)
+        paths = [self.pathGap1, self.manualCurve1, self.manualCurve2, self.downRamp]
+        random.choice(paths)()
+
+    def createPath_u(self):
+        paths = [self.pathGap1, self.manualCurve1, self.manualCurve2, self.upRamp]
+        random.choice(paths)()
                   
 #Nextcount
         
@@ -96,7 +105,10 @@ class Game(pygame.sprite.Sprite):
     def new_game(self):
 
         #pygame.draw.arc(screen, WHITE,[80,80,80,80], 0.5, 0.5, 10)
-        Game.play_Smusic(self)
+        self.play_Smusic()
+
+        self.t = 0
+        self.t2 = 0
 
         # Create a sprite group of all sprites
         self.all_sprites_group = pygame.sprite.Group()
@@ -107,13 +119,13 @@ class Game(pygame.sprite.Sprite):
         self.my_Player = Player()
         self.all_sprites_group.add(self.my_Player)
 
-        self.my_Path = Path(100, 200)
+        self.my_Path = Path(175, 200)
         self.path_group.add(self.my_Path)
         self.all_sprites_group.add(self.my_Player)
 
         # SPAWN RAMP
-                           
-        for count in range(80):
+        self.straightPath()                   
+        for count in range(200):
             
             if self.my_Path.rect.y <= 200:
                 self.turnDown = True
@@ -123,11 +135,8 @@ class Game(pygame.sprite.Sprite):
              #   self.bottomRamp1 = True
               #  self.turnDown = False
                # self.turnUp = False
-            elif self.my_Path.rect.y >= 400:
-                #self.my_Path = Path(self.my_Path.rect.x + self.my_Path.rect.width + 100, self.my_Path.rect.y)
+            elif self.my_Path.rect.y >= 350:
                 #self.bottomRamp1 = False
-                #self.my_Path = Path(self.my_Path.rect.x + self.my_Path.rect.width + 100, self.my_Path.rect.y)
-                #self.my_Path = Path(self.my_Path.rect.x + self.my_Path.rect.width, self.my_Path.rect.y + 1)
                 #pygame.draw.arc(screen, WHITE ,[88,145,61,25], 0.5,0.5, 10)
                 self.turnDown = False
                 self.turnUp = True
@@ -142,12 +151,12 @@ class Game(pygame.sprite.Sprite):
             if self.turnUp == True:
                 #Makes ramp go up
                 #for i in range(100):
-                Game.upRamp(self)
+                self.createPath_u()
             elif self.turnDown == True:
                 #Makes ramp go down
                 #for i in range(100):
                 #Game.downRamp(self)
-                Game.createPath_d(self)
+                self.createPath_d()
             #elif self.bottomRamp1 == True:
                 #Game.manualCurve(self)
              
@@ -173,17 +182,56 @@ class Game(pygame.sprite.Sprite):
         # Path and player collisions
         player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
         if player_path_collision_group:
+            self.flying = False
             collision = True
             self.my_Player.player_set_v_gravity(0)
         else:
             collision = False
+            self.flying = True
             
         if collision == True:
             for foo in player_path_collision_group:
                 self.my_Player.rect.bottom = foo.rect.bottom #This method works. PLayers bottom right tho must be touching so it can move up if it is moved forwards.
         else:
-            self.my_Player.player_set_v_gravity(2)
+            self.my_Player.player_set_v_gravity(1)
 
+        #Gravity Power
+
+        if self.flying == True:
+            self.t += (1/60)
+            if self.t >= 0 and self.t < 0.5:
+                self.my_Player.v_gravity = 2
+            elif self.t >= 0.5 and self.t < 1:
+                self.my_Player.v_gravity = 3
+            elif self.t >= 1 and self.t < 1.5:
+                self.my_Player.v_gravity = 4
+            elif self.t >= 1.5 and self.t < 2:
+                self.my_Player.v_gravity = 5
+            elif self.t >= 2 and self.t < 2.5:
+                self.my_Player.v_gravity = 6
+            elif self.t >= 2.5 and self.t < 3:
+                self.my_Player.v_gravity = 7
+            elif self.t >= 3 and self.t < 3.5:
+                self.my_Player.v_gravity = 8
+            elif self.t >= 3.5 and self.t < 4:
+                self.my_Player.v_gravity = 9
+        elif self.flying == False:
+            self.t = 0
+
+        self.t2 += (1/60)
+        if self.t2 == 0:
+            prev_y_speed = self.my_Player.rect.y
+        elif self.t2 == 1:
+            current_y_speed = self.my_Player.rect.y
+            print(prev_y_speed, current_y_speed)
+
+        #print(self.t)
+        #print(self.t) v = u + at
+
+        #ENDS GAME
+        if self.my_Player.running == False:
+            #self.running = False
+            self.playing = False
         
     def events(self):
 
@@ -195,7 +243,7 @@ class Game(pygame.sprite.Sprite):
             elif event.type == pygame.KEYDOWN: # - A key is down
                 if event.key == pygame.K_SPACE: # - If the space key pressed
                     for foo in self.path_group:
-                        foo.scroll(4)
+                        foo.scroll(5)
             elif event.type == pygame.KEYUP: # - A key released            
                 if event.key == pygame.K_SPACE:
                     for foo in self.path_group:

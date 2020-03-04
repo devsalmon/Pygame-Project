@@ -17,8 +17,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 300
         self.rect.y = 20
-        self.v_gravity = 1
+        self.v_gravity = 0
         self.h_speed = 0
+        self.running = True
 
     def update(self):
         self.rect.x = self.rect.x + self.h_speed
@@ -26,8 +27,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = (self.rect.y + self.v_gravity)
         #Reset position of Player once off the screen
         if self.rect.y >= size[1]:
-            self.rect.x = 300
-            self.rect.y = 20
+            self.running = False
+            #self.rect.x = 300
+            #self.rect.y = 20
             #pygame.quit()
     #End Method
 
