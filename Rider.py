@@ -15,16 +15,10 @@ class Game(pygame.sprite.Sprite):
         self.collision = False
         self.clock = pygame.time.Clock()
         self.running = True
-        self.t = 0
-        self.t2 = 0
-        self.y_reading = False
-        self.current_y = 0
-        self.last_y = 0
-        self.change_in_y = 0
 
     def play_Smusic(self):
         song_queue = ["TheFatRat - Unity.mp3", "The Cranberries - Zombie (Lost Sky Remix).mp3",
-                           "Monody.mp3", "LAY LAY.mp3", "Xenogenesis.mp3"]
+                           "Monody.mp3", "Xenogenesis.mp3"]
         pygame.mixer.music.load(random.choice(song_queue))
         pygame.mixer.music.play()
         #pygame.mixer.music.set_volume(0.0)
@@ -101,11 +95,7 @@ class Game(pygame.sprite.Sprite):
 
     def new_game(self):
 
-        self.play_Smusic()
-
-        self.t = 0
-        self.t2 = 0
-        self.change_in_y = 0
+        #self.play_Smusic() #Plays the shuffled song
 
         # Create a sprite group of all sprites
         self.all_sprites_group = pygame.sprite.Group()
@@ -152,68 +142,28 @@ class Game(pygame.sprite.Sprite):
             self.update()
             self.draw()
             
-            
     def update(self):
 
         # Update each sprite each loop
         self.all_sprites_group.update()
 
-        #Gravity Power
-        #Finds player's y component of velocity
-        self.t2 += 1 #Later every 60 loops (1 second) the y component of velocity is given.
-        if self.y_reading == True:
-            self.last_y = self.my_Player.rect.y
-            self.y_reading = False
-        self.current_y = self.my_Player.rect.y #Every loop current y position is returned so that it can be subtracted from last position taken (last_y)
-        self.change_in_y = self.current_y - self.last_y
-        if self.t2 % 30 == 0: #Every 0.5 seconds set current y reading to last one.
-            self.y_reading = True
-
         # Path and player collisions
         player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
-        if player_path_collision_group:
-            collision = True
-        else:
-            collision = False
-            
-        if collision == True:          
-            self.my_Player.player_set_v_gravity(0)
-            self.t = 0 #Gravity strength resets so time goes to 0.
+        if player_path_collision_group: #If player and block collide...
             for foo in player_path_collision_group:
-                self.my_Player.rect.bottom = foo.rect.bottom #This method works. PLayers bottom right tho must be touching so it can move up if it is moved forwards.
-        else:
-            self.my_Player.player_set_v_gravity(1) #WTF stops from floating beyond screen
-
-            self.t += (1/60) #Time elapses where gravity should be getting stronger.
-            if self.change_in_y > 0: #Player moves down because of gravity at increasingly faster rates.
-                if self.t >= 0 and self.t < 0.5: #if in the air for 0.5 seconds move down at this speed etc.
-                    self.my_Player.v_gravity = 2
-                elif self.t >= 0.5 and self.t < 1:
-                    self.my_Player.v_gravity = 3
-                elif self.t >= 1 and self.t < 1.5:
-                    self.my_Player.v_gravity = 4
-                elif self.t >= 1.5 and self.t < 2:
-                    self.my_Player.v_gravity = 5
-                elif self.t >= 2 and self.t < 2.5:
-                    self.my_Player.v_gravity = 6
-                elif self.t >= 2.5 and self.t < 3:
-                    self.my_Player.v_gravity = 7
-                elif self.t >= 3 and self.t < 3.5:
-                    self.my_Player.v_gravity = 8
-                elif self.t >= 3.5 and self.t < 4:
-                    self.my_Player.v_gravity = 9
-                    
-            elif self.change_in_y <= -5: #Player should move up if y velocity is fast enough.
-                self.my_Player.player_set_v_gravity(-3)
-            elif self.change_in_y <= -1 and self.change_in_y > -5:
-                self.my_Player.player_set_v_gravity(-1)
-        #£ndif
+                self.my_Player.rect.bottom = foo.rect.top #This method works. PLayers bottom right tho must be touching so it can move up if it is moved forwards.
+                self.my_Player.g_Vel = 0
+       
+        if self.collision == True:          
+            for foo in player_path_collision_group:
+                self.my_Player.rect.bottom = foo.rect.top #This method works. PLayers bottom right tho must be touching so it can move up if it is moved forwards.
+                self.my_Player.g_Vel = 0 #Player's gravity velocity is 0 at collision.
 
         #ENDS GAME
         if self.my_Player.running == False:
             #self.running = False
             self.playing = False
-        
+            
     def events(self):
 
         # -- User inputs here
@@ -221,20 +171,6 @@ class Game(pygame.sprite.Sprite):
             if event.type == pygame.QUIT:
                 self.running = False
                 self.playing = False
-            elif event.type == pygame.KEYDOWN: # - A key is down
-                if event.key == pygame.K_SPACE: # - If the space key pressed
-                    #if self.flying == False: Player should only move if touching surface
-                    for foo in self.path_group:
-                        foo.scroll(5) #Path scrolls from right to left
-            elif event.type == pygame.KEYUP: # - A key released            
-                if event.key == pygame.K_SPACE:
-                    for foo in self.path_group:
-                        foo.scroll(0) #If space key is released, path stops moving
-                    #Next
-                #Endif
-            #Endif
-        #Next
-                        
 
     def draw(self):
                 

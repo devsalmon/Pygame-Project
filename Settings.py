@@ -4,6 +4,10 @@ import pygame
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 
+#Properities
+PLAYER_ACC = -0.5
+PLAYER_FRICTION = -0.12
+
 #screen size
 size = (800, 500) #800/500
 screen = pygame.display.set_mode(size)
