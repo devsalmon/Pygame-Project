@@ -9,7 +9,9 @@ PLAYER_ACC = -0.5
 PLAYER_FRICTION = -0.12
 
 #screen size
-size = (800, 500) #800/500
+WIDTH = 800
+HEIGHT = 500
+size = (WIDTH, HEIGHT) #800/500
 screen = pygame.display.set_mode(size)
 #screen = pygame.display.set_mode((size), pygame.RESIZABLE)
 
