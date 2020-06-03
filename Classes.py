@@ -1,6 +1,6 @@
 import pygame
 from Settings import *
-import cv2, time #!!!!!
+#import cv2, time #!!!!!
 import math
 
 ## -- Define the class Player which is a sprite
@@ -61,15 +61,15 @@ class Player(pygame.sprite.Sprite):
             
         #Reset position of Player once off the screen (new game) + take photo
         if self.rect.y >= HEIGHT:
-            video = cv2.VideoCapture(0) #!!!!!!
+           ## video = cv2.VideoCapture(0) #!!!!!!
             # create a frame object #!!!!!!!!!!
-            check, frame = video.read() #!!!!!!
+            #check, frame = video.read() #!!!!!!
             #print(check) #!!!!!!!!!!
             #print(frame) # representing image #!!!!!!!
-            cv2.imshow("Capturing", frame) #!!!!!!!
-            cv2.waitKey(0) #!!!!!!!!!!
-            video.release() #!!!!!!!!!!!!
-            cv2.destroyAllWindows #!!!!!!!!!!!!!!
+            #cv2.imshow("Capturing", frame) #!!!!!!!
+            #cv2.waitKey(0) #!!!!!!!!!!
+            #video.release() #!!!!!!!!!!!!
+            #cv2.destroyAllWindows #!!!!!!!!!!!!!!
             self.running = False
         #Endif
             
