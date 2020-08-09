@@ -32,76 +32,138 @@ class Game(pygame.sprite.Sprite):
         pygame.mixer.music.load(random.choice(song_queue))
         pygame.mixer.music.play()
         #pygame.mixer.music.set_volume(0.0)
-
+        
     def straightPath(self):
-        self.my_Path = Path(self, 175, 200) #Creates first path block which others build from
+        # Creates first path block which others build from.
+        self.my_Path = Path(self, 175, 200)
+        # After each object is created, it is added to the path group and the
+        # all sprites group in order to facilitate detecting collisions,
+        # and so that they can be drawn easily, all together onto the screen.
         self.path_group.add(self.my_Path)
-        self.all_sprites_group.add(self.my_Player)
+        self.all_sprites_group.add(self.my_Path)
+        # The for loop will iterate 250 times creating 250 path objects.
         for count in range(250):
+            # The width of each path is added to the previous x coordinate
+            # so that the next object appears exactly on the right of the
+            # previous object, forming a level line.
             self.my_Path = Path(self, self.my_Path.rect.x + self.my_Path.width, self.my_Path.rect.y)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
 
-    def manualCurve1(self):
+    def manualCurveDown(self):
+        # Creates 5 path objects going down at a -1/2 gradient.
         for count in range(5):
             self.my_Path = Path(self, self.my_Path.rect.x + 2, self.my_Path.rect.y + 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+        # Creates 4 path objects going down at a -1/3 gradient.
         for count in range(4):
             self.my_Path = Path(self, self.my_Path.rect.x + 3, self.my_Path.rect.y + 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+        # Creates 3 path objects going down at a -1/4 gradient.    
         for count in range(3):
             self.my_Path = Path(self, self.my_Path.rect.x + 4, self.my_Path.rect.y + 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+        # Creates 5 level path objects at the bottom of the curve.
         for count in range(5):
             self.my_Path = Path(self, self.my_Path.rect.x + 1, self.my_Path.rect.y)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
 
-    def manualCurve2(self):
+    def manualCurveUp(self):
+        # Creates 5 level path objects at the bottom of the curve.
+        for count in range(5):
+            self.my_Path = Path(self, self.my_Path.rect.x + 1, self.my_Path.rect.y)
+            # Adds each object to the sprite groups.
+            self.path_group.add(self.my_Path)
+            self.all_sprites_group.add(self.my_Path)
+        # Creates 3 path objects going up at a 1/4 gradient.
         for count in range(3):
             self.my_Path = Path(self, self.my_Path.rect.x + 4, self.my_Path.rect.y - 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+        # Creates 4 path objects going up at a 1/3 gradient.
         for count in range(4):
             self.my_Path = Path(self, self.my_Path.rect.x + 3, self.my_Path.rect.y - 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+        # Creates 5 path objects going up at a 1/2 gradient.
         for count in range(5):
             self.my_Path = Path(self, self.my_Path.rect.x + 2, self.my_Path.rect.y - 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
 
-    def pathGap1(self):
+    def pathGap(self):
+        # Adds 60 pixels to the previous path object, creating a gap.
         self.my_Path = Path(self, self.my_Path.rect.x + 60, self.my_Path.rect.y)
+        # The for loop iterates 30 times creating a short straight path,
+        # giving the player something to land on.
         for count in range(30):
             self.my_Path = Path(self, self.my_Path.rect.x + self.my_Path.width, self.my_Path.rect.y)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
 
     def downRamp(self):
+        # The for loop will iterate 125 times creating 125 path objects.
         for count in range(125):
+            # Creates a new path object directly on the right of the previous
+            # object by adding the width to the x coordinate. It also subtracts
+            # the height of the object to the y coordinate to make each object
+            # appear slightly lower than the previous object, forming a ramp.
             self.my_Path = Path(self, self.my_Path.rect.x + self.my_Path.rect.width, self.my_Path.rect.y + 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
 
     def upRamp(self):
+        # The for loop will iterate 125 times creating 125 path objects.
         for count in range(125):
+            # Creates a new path object directly on the right of the previous
+            # object by adding the width to the x coordinate. It also adds
+            # the height of the object to the y coordinate to make each object
+            # appear slightly above the previous object, forming a ramp.
             self.my_Path = Path(self, self.my_Path.rect.x + self.my_Path.rect.width, self.my_Path.rect.y - 1)
+            # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
 
-    def createPath_d(self): #Creates downwards compatible path segments randomly.
-        paths = [self.manualCurve1, self.manualCurve2, self.downRamp]#self.PathGap1
+    # Creates downwards compatible path components in a random order.
+    def createPath_d(self):
+
+        # Stores the compatible path components in a list.
+        paths = [self.manualCurveDown, self.manualCurveUp, self.downRamp] #self.pathGap]
+        # Chooses a random item from the list and executes the selected method.
         random.choice(paths)()
 
-    def createPath_u(self): #Creates upwards compatible path segments randomly.
-        paths = [self.manualCurve1, self.manualCurve2, self.upRamp]#self.PathGap1
+    # Creates upwards compatible path components in a random order.
+    def createPath_u(self):
+
+        # Stores the compatible path components in a list.
+        paths = [self.manualCurveDown, self.manualCurveUp, self.upRamp] #self.pathGap]
+        # Chooses a random item from the list and executes the selected method.
         random.choice(paths)()
 
     #After certain x value. Harder path functions should start.
+
+    def createCollectables(self):
+        #xpos = random.randrange(spaceInFront) + 310
+        xpos = 300
+        ypos = random.randrange(HEIGHT - 10)
+        self.my_Collectable = Collectables(xpos, ypos)
+        #print(self.my_Collectable.rect.y)
+        self.collectable_group.add(self.my_Collectable)
+        self.all_sprites_group.add(self.my_Collectable)
         
     def new_game(self):
 
@@ -114,29 +176,44 @@ class Game(pygame.sprite.Sprite):
         self.all_sprites_group = pygame.sprite.Group()
         # Create a sprite group of the paths
         self.path_group = pygame.sprite.Group()
+        # Create a sprite group of the collectables
+        self.collectable_group = pygame.sprite.Group()
 
         # Create the Objects
         self.my_Player = Player(self)
         self.all_sprites_group.add(self.my_Player)
         self.player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
 
-        # SPAWN RAMP
-        self.straightPath() #Initial straight path segment so player starts level and comfortably always. Maybe menu appears above.                  
-        for count in range(200):
+        self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, True)
+
+
+        for count in range(2): 
+            self.createCollectables()
+
+        # SPAWN PATH
+        # Initial straight path segment is called so player starts
+        # level and comfortably always.            
+        self.straightPath()
+
+        # Will create 100 path random path components.
+        for count in range(100):
             
-            if self.my_Path.rect.y <= 200: #If path is too low, start building upwards.
+            # If path is too low, path will know to start building downwards.
+            if self.my_Path.rect.y <= 200:
+                # turnDown will be true until path becomes too low.
                 self.turnDown = True
-                self.turnUp = False
-            elif self.my_Path.rect.y >= 350: #If path is too high, start building downwards.
-                self.turnDown = False
-                self.turnUp = True                
-                
-            if self.turnUp == True:
-                #Makes ramp go up
-                self.createPath_u()
-            elif self.turnDown == True:
-                #Makes ramp go down
+            # If path is too high, path will know to start building upwards.
+            elif self.my_Path.rect.y >= 350:
+                # turnDown will be false until path becomes too high.
+                self.turnDown = False              
+                    
+            # When turnDown is true, path should go downwards.
+            if self.turnDown == True:
+                # Spawns random downwards components.
                 self.createPath_d()
+            else:
+                # Spawns random upwards components.
+                self.createPath_u()
 
         #Runs game?
         self.run()
@@ -165,13 +242,26 @@ class Game(pygame.sprite.Sprite):
         #    print(self.collision)
         #self.collision = pygame.sprite.collide_rect(self.my_Player, self.my_Path)
         #print(self.collision)
+        
+        # PLAYER-PATH COLLISIONS
+        # Creates a group of the path objects the player collides with.
+        # False as the last argument indicates that the path objects should
+        # not destroy on collision.
         self.player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
-        if self.player_path_collision_group: #If player and block collide...
+
+        # If the player and path objects collide...
+        if self.player_path_collision_group:
+            # The player's gravity velocity becomes 0. 
+            self.my_Player.g_Vel = 0
+            
+            # For every object in the collision group...
             for foo in self.player_path_collision_group:
-                self.my_Player.rect.bottom = foo.rect.top #This method works. PLayers bottom right tho must be touching so it can move up if it is moved forwards.
-                self.my_Player.g_Vel = 0 #Player's gravity velocity is 0 at collision      
+                # The bootom edge of the player should remain on the top
+                # edge of the path objects.
+                self.my_Player.rect.bottom = foo.rect.top
+
         else: #If no collision...
-                #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
+            #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
             if self.my_Player.change_in_y < 0: #if no collision + going up... 
                 #self.my_Player.current_y = 0
                 #self.my_Player.last_y = 0 #makes change_in_y positive.
@@ -179,16 +269,24 @@ class Game(pygame.sprite.Sprite):
                 #Player should move down quicker
                 #if change in y > 0 allow movement if just collided?
 
+
+        # PLAYER-COLLECTABLE COLLISIONS
+        self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, False)
+        ##if self.player_SizeUp_collision_group:
+            #self.my_Player.width = 2
+            #print("test")
+
         #SCORE
         self.score = self.my_Path.score
         if self.score > self.highscore: #New high score
             #self.draw_stats(50, 50, "NEW HIGH SCORE")
             self.highscore = self.score
             with open(path.join(self.dir, "highscore.txt"), 'w') as f:
-                f.write(str(self.score))
+                f.write(str(self.highscore))
 
         #Instructions
-        self.insx += self.my_Path.vel #x pos of info will move appropriately
+        self.insx += self.my_Path.vel   #x pos of info will move appropriately
+                                        #vel is negative as path moves left so you add it
 
         #ENDS GAME
         if self.my_Player.running == False:
@@ -211,11 +309,15 @@ class Game(pygame.sprite.Sprite):
         # -- Draw here
         #self.all_sprites_group.draw(screen)
         self.path_group.draw(screen) #Is first block appearing fine?
+
+        #Draws collectables group
+        self.collectable_group.draw(screen)
         
         #pygame.draw.line(screen, WHITE, (0,0), (200,200), 5)
         #pygame.draw.arc(screen, WHITE,[80,80,80,80], 0.5, 0.5, 10)
         #Draw player which can rotate
         screen.blit(self.my_Player.new_image, self.my_Player.rect)
+        ##screen.blit(self.my_Player.image, self.my_Player.rect)
         
         #Draw stats
         self.draw_stats((WIDTH // 2 - 80), 50, "SCORE: %d" % self.score, 30)
