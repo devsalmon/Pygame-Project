@@ -15,15 +15,15 @@ class Player(pygame.sprite.Sprite):
         # Allows attributes from the Game class to be accessed.
         self.my_Game = my_Game
         # Sets the width and height of the object to 20 by 20 pixels.
-        self.width = 20
-        self.height = 20
+        ##self.width = 20
+        ##self.height = 20
         # Creates the sprite image.
-        self.image = pygame.Surface([self.width,self.height])
-        ##self.image = pygame.image.load("mcqueensprite.png")
-        self.image.set_colorkey(BLACK)
+        ##self.image = pygame.Surface([self.width,self.height])
+        self.image = pygame.image.load("test.png")
+        ##self.image.set_colorkey(YELLOW)
         self.new_image = self.image
         #self.new_image.set_colorkey(BLACK)
-        self.image.fill(WHITE)
+        ##self.image.fill(WHITE)
         # Set the position of the sprite
         #self.new_image = self.image.get_rect()
         #self.rect = self.new_image

@@ -166,7 +166,7 @@ class Game(pygame.sprite.Sprite):
         self.all_sprites_group.add(self.my_Collectable)
         
     def new_game(self):
-
+    
         #self.play_Smusic() #Plays the shuffled song
 
         self.score = 0
@@ -185,10 +185,12 @@ class Game(pygame.sprite.Sprite):
         self.player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
 
         self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, True)
+        
+        ###DELETE IF NEEDED
+        #self.right_collision_group = pygame.sprite.spritecollide(self.my_Player.rect.bottomleft, self.path_group, False)
 
-
-        for count in range(2): 
-            self.createCollectables()
+        ##for count in range(2): 
+          ##  self.createCollectables()
 
         # SPAWN PATH
         # Initial straight path segment is called so player starts
@@ -248,6 +250,12 @@ class Game(pygame.sprite.Sprite):
         # False as the last argument indicates that the path objects should
         # not destroy on collision.
         self.player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
+
+        ###DELETE IF NEEDED
+        #self.right_collision_group = pygame.sprite.spritecollide(self.my_Player.rect.bottomleft, self.path_group, False)
+        #if self.my_Player.rect.collidepoint(self.my_Player.rect.bottomleft):
+         #   print("test")
+
 
         # If the player and path objects collide...
         if self.player_path_collision_group:

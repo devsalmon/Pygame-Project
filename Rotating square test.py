@@ -18,12 +18,19 @@ clock = py.time.Clock()
 rot = 0  
 rot_speed = 5
 
+#TEST IMAGE
+test_image = py.image.load("test.png")
+#test_image.convert_alpha()
+#image = pygame.Surface([width, height], pygame.SRCALPHA)
+
 # define a surface (RECTANGLE)  
-image_orig = py.Surface((100 , 100))  
+##image_orig = py.Surface((100 , 100))
+image_orig = py.image.load("test.png")
 # for making transparent background while rotating an image  
+##test_image.set_colorkey(BLACK)
 image_orig.set_colorkey(BLACK)  
 # fill the rectangle / surface with green color  
-image_orig.fill(GREEN)  
+##image_orig.fill(GREEN)  
 # creating a copy of orignal image for smooth rotation  
 #image = image_orig.copy()  
 #image_orig.set_colorkey(BLACK)  
@@ -31,7 +38,7 @@ image_orig.fill(GREEN)
 rect = image_orig.get_rect()  
 rect.center = (WIDTH // 2 , HEIGHT // 2)  
 # keep rotating the rectangle until running is set to False  
-running = True  
+running = True
 while running:  
     # set FPS  
     clock.tick(FPS)  
@@ -53,6 +60,7 @@ while running:
     rect.center = old_center  
     # drawing the rotated rectangle to the screen  
     screen.blit(new_image , rect)
+    screen.blit(test_image , (200, 300))
     # flipping the display after drawing everything  
     py.display.flip()  
 
