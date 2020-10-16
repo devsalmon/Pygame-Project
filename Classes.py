@@ -8,28 +8,28 @@ import random
 class Player(pygame.sprite.Sprite):
     
     # Define the constructor for Player.
-    def __init__(self, my_Game):
+    def __init__(self, my_Game, posx, posy):
         
         # Call the sprite constructor.
         super().__init__()
         # Allows attributes from the Game class to be accessed.
         self.my_Game = my_Game
         # Sets the width and height of the object to 20 by 20 pixels.
-        ##self.width = 20
-        ##self.height = 20
+        self.width = 10
+        self.height = 10
         # Creates the sprite image.
-        ##self.image = pygame.Surface([self.width,self.height])
-        self.image = pygame.image.load("test.png")
+        self.image = pygame.Surface([self.width,self.height])
+        ########self.image = pygame.image.load("test.png")
         ##self.image.set_colorkey(YELLOW)
         self.new_image = self.image
-        #self.new_image.set_colorkey(BLACK)
-        ##self.image.fill(WHITE)
+        self.new_image.set_colorkey(BLACK)
+        self.image.fill(WHITE)
         # Set the position of the sprite
         #self.new_image = self.image.get_rect()
         #self.rect = self.new_image
         self.rect = self.image.get_rect()
-        self.rect.x = 300
-        self.rect.y = 20
+        self.rect.x = posx
+        self.rect.y = posy
         self.running = True
         # Sets the acceleration of the gravitational
         # force equal to the constant.
@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         #For rotation:
         self.rot = 0
         self.rot_speed = ROT_SPEED
-        self.rect.center = (310, 50)
+        self.rect.center = (posx, posy)
         #For finding y velocity:
         self.y_reading = False
         self.t = 0
@@ -57,7 +57,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.g_Vel + 0.5 * self.g_Acc
 
         #Finds player's y component of velocity when collided(for lift off)
-        if self.my_Game.player_path_collision_group:
+        if self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group:
             self.t += 1 #Later every 60 loops (1 second) the y component of velocity is given.
             if self.y_reading == True:
                 self.last_y = self.rect.y
@@ -88,12 +88,78 @@ class Player(pygame.sprite.Sprite):
         #if keys[pygame.K_UP]: #PLAYER projection. Also look at bottom right rect...
          #   self.g_Vel = -5   #A.rect.bottomright. must find y vel at all times for this.
         #ROTATE PLAYER
-        if keys[pygame.K_SPACE] and not self.my_Game.player_path_collision_group:
+##        if keys[pygame.K_SPACE] and not self.my_Game.player1_path_collision_group and not self.my_Game.player2_path_collision_group:
+##            #making a copy of the old center of the rectangle
+##            old_center = self.rect.center
+##            #defines angle of rotation
+##            self.rot = (self.rot + self.rot_speed) % 360
+##           #rotating the orignal image  
+##            self.new_image = pygame.transform.rotate(self.image , self.rot)
+##            #self.image = self.new_image#
+##            self.rect = self.new_image.get_rect()
+##            #self.rect = self.image.get_rect()#
+##            #set the rotated rectangle to the old center
+##            self.rect.center = old_center
+##            #screen.blit(new_image, self.rect)
+    #End method
+
+# End Player class
+
+# Defines the class Player which is a sprite.
+class Playerbody(pygame.sprite.Sprite):
+    
+    # Define the constructor for Player.
+    def __init__(self, my_Game, posx, posy):
+        
+        # Call the sprite constructor.
+        super().__init__()
+        # Allows attributes from the Game class to be accessed.
+        self.my_Game = my_Game
+        # Sets the width and height of the object to 20 by 20 pixels.
+        self.width = 40
+        self.height = 20
+        # Creates the sprite image.
+        self.image = pygame.Surface([self.width,self.height])
+        ########self.image = pygame.image.load("test.png")
+        ##self.image.set_colorkey(YELLOW)
+        self.new_image = self.image
+        self.new_image.set_colorkey(BLACK)
+        self.image.fill(YELLOW)
+        # Set the position of the sprite
+        #self.new_image = self.image.get_rect()
+        #self.rect = self.new_image
+        self.rect = self.image.get_rect()
+        self.rect.x = posx
+        self.rect.y = posy
+        self.running = True
+        # Sets the acceleration of the gravitational
+        # force equal to the constant.
+        self.g_Acc = GRAVITY
+        # The initial velocity of gravity will be 0.
+        self.g_Vel = 0
+        #For rotation:
+        self.rot = 0
+        self.rot_speed = ROT_SPEED
+        self.rect.center = (posx, posy)
+        #For finding y velocity:
+        self.y_reading = False
+        self.t = 0
+        self.last_y = 0
+        self.current_y = 0
+        self.change_in_y = 0
+
+    def update(self):
+            
+        keys = pygame.key.get_pressed()
+        #if keys[pygame.K_UP]: #PLAYER projection. Also look at bottom right rect...
+         #   self.g_Vel = -5   #A.rect.bottomright. must find y vel at all times for this.
+        #ROTATE PLAYER
+        if keys[pygame.K_SPACE] and not self.my_Game.player1_path_collision_group and not self.my_Game.player2_path_collision_group:
             #making a copy of the old center of the rectangle
             old_center = self.rect.center
             #defines angle of rotation
             self.rot = (self.rot + self.rot_speed) % 360
-            #rotating the orignal image  
+           #rotating the orignal image  
             self.new_image = pygame.transform.rotate(self.image , self.rot)
             #self.image = self.new_image#
             self.rect = self.new_image.get_rect()
@@ -104,6 +170,7 @@ class Player(pygame.sprite.Sprite):
     #End method
 
 # End Player class
+
 
 # Defines the class Path which is a sprite.
 class Path(pygame.sprite.Sprite):
@@ -142,7 +209,7 @@ class Path(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
 
         # If the space key is pressed and the player and path are colliding...
-        if keys[pygame.K_SPACE] and self.my_Game.player_path_collision_group:
+        if keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group:
             # Sets acceleration equal to the player acceleration constant.
             self.acc = PLAYER_ACC
             

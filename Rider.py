@@ -5,6 +5,7 @@ from pygame.math import Vector2
 from Classes import *
 from Settings import *
 from os import path
+from math import atan2, degrees, pi
 
 class Game(pygame.sprite.Sprite):
 
@@ -180,11 +181,20 @@ class Game(pygame.sprite.Sprite):
         self.collectable_group = pygame.sprite.Group()
 
         # Create the Objects
-        self.my_Player = Player(self)
-        self.all_sprites_group.add(self.my_Player)
-        self.player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
+        # Player wheel 1
+        self.my_Player1 = Player(self, 280, 50)
+        self.all_sprites_group.add(self.my_Player1)
+        self.player1_path_collision_group = pygame.sprite.spritecollide(self.my_Player1, self.path_group, False)
+        # Player wheel 2
+        self.my_Player2 = Player(self, 295, 50)
+        self.all_sprites_group.add(self.my_Player2)
+        self.player2_path_collision_group = pygame.sprite.spritecollide(self.my_Player2, self.path_group, False)
 
-        self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, True)
+        ####RECTANGLE
+        self.my_Playerbody = Playerbody(self, 200, 50)
+        self.all_sprites_group.add(self.my_Playerbody)
+
+        ###self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, True)
         
         ###DELETE IF NEEDED
         #self.right_collision_group = pygame.sprite.spritecollide(self.my_Player.rect.bottomleft, self.path_group, False)
@@ -235,6 +245,19 @@ class Game(pygame.sprite.Sprite):
 
         # Update each sprite each loop
         self.all_sprites_group.update()
+        
+        x_coordinate_of_center = (self.my_Player1.rect.x + self.my_Player2.rect.x) // 2
+        y_coordinate_of_center = (self.my_Player1.rect.y + self.my_Player2.rect.y) // 2
+        # Set the center of the body to the middle point between both wheels
+        self.my_Playerbody.rect.center = ((x_coordinate_of_center + 5),(y_coordinate_of_center - 5))
+        # Find change of x and y
+        dx = self.my_Player1.rect.x - self.my_Player2.rect.x
+        dy = self.my_Player1.rect.y - self.my_Player2.rect.y
+        # Finds the angle between both wheels
+        rads = atan2(-dy,dx)
+        # Converts angle to degrees
+        degs = degrees(rads)
+                
         #if player,rect.x + 20 != mypath 
         #IF BOTTOM RIGHT DOESNT HAVE COLLISION PLAYER CAN JUMP
         # Path and player collisions
@@ -249,7 +272,9 @@ class Game(pygame.sprite.Sprite):
         # Creates a group of the path objects the player collides with.
         # False as the last argument indicates that the path objects should
         # not destroy on collision.
-        self.player_path_collision_group = pygame.sprite.spritecollide(self.my_Player, self.path_group, False)
+        self.player1_path_collision_group = pygame.sprite.spritecollide(self.my_Player1, self.path_group, False)
+        self.player2_path_collision_group = pygame.sprite.spritecollide(self.my_Player2, self.path_group, False)
+
 
         ###DELETE IF NEEDED
         #self.right_collision_group = pygame.sprite.spritecollide(self.my_Player.rect.bottomleft, self.path_group, False)
@@ -258,28 +283,58 @@ class Game(pygame.sprite.Sprite):
 
 
         # If the player and path objects collide...
-        if self.player_path_collision_group:
+        if self.player1_path_collision_group:
             # The player's gravity velocity becomes 0. 
-            self.my_Player.g_Vel = 0
-            
+            self.my_Player1.g_Vel = 0
+                       
             # For every object in the collision group...
-            for foo in self.player_path_collision_group:
+            for foo in self.player1_path_collision_group:
                 # The bootom edge of the player should remain on the top
                 # edge of the path objects.
-                self.my_Player.rect.bottom = foo.rect.top
+                self.my_Player1.rect.bottom = foo.rect.top
 
         else: #If no collision...
             #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
-            if self.my_Player.change_in_y < 0: #if no collision + going up... 
+            if self.my_Player1.change_in_y < 0: #if no collision + going up... 
                 #self.my_Player.current_y = 0
                 #self.my_Player.last_y = 0 #makes change_in_y positive.
-                self.my_Player.g_Vel = self.my_Path.vel #-8 #player should go up.
+                self.my_Player1.g_Vel = self.my_Path.vel #-8 #player should go up.
+                self.my_Player2.g_Vel = self.my_Path.vel
                 #Player should move down quicker
                 #if change in y > 0 allow movement if just collided?
 
 
+                # If the player and path objects collide...
+        if self.player2_path_collision_group:
+            # The player's gravity velocity becomes 0. 
+            self.my_Player2.g_Vel = 0
+            
+            # For every object in the collision group...
+            for foo in self.player1_path_collision_group:
+                # The bootom edge of the player should remain on the top
+                # edge of the path objects.
+                self.my_Player1.rect.bottom = foo.rect.top
+
+            for foo in self.player2_path_collision_group:
+                self.my_Player2.rect.bottom = foo.rect.top
+
+        else: #If no collision...
+            #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
+            if self.my_Player2.change_in_y < 0: #if no collision + going up... 
+                #self.my_Player.current_y = 0
+                #self.my_Player.last_y = 0 #makes change_in_y positive.
+                self.my_Player1.g_Vel = self.my_Path.vel #-8 #player should go up.
+                self.my_Player2.g_Vel = self.my_Path.vel
+                #Player should move down quicker
+                #if change in y > 0 allow movement if just collided?
+
+
+        if self.player1_path_collision_group and self.player2_path_collision_group:
+            # Gives body the same gradient as wheels
+            self.my_Playerbody.new_image = pygame.transform.rotate(self.my_Playerbody.image, degs)
+
         # PLAYER-COLLECTABLE COLLISIONS
-        self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, False)
+        ###self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, False)
         ##if self.player_SizeUp_collision_group:
             #self.my_Player.width = 2
             #print("test")
@@ -297,7 +352,7 @@ class Game(pygame.sprite.Sprite):
                                         #vel is negative as path moves left so you add it
 
         #ENDS GAME
-        if self.my_Player.running == False:
+        if self.my_Player1.running == False:
             #self.running = False
             self.playing = False
             
@@ -324,7 +379,9 @@ class Game(pygame.sprite.Sprite):
         #pygame.draw.line(screen, WHITE, (0,0), (200,200), 5)
         #pygame.draw.arc(screen, WHITE,[80,80,80,80], 0.5, 0.5, 10)
         #Draw player which can rotate
-        screen.blit(self.my_Player.new_image, self.my_Player.rect)
+        screen.blit(self.my_Player1.new_image, self.my_Player1.rect)
+        screen.blit(self.my_Player2.new_image, self.my_Player2.rect)
+        screen.blit(self.my_Playerbody.new_image, self.my_Playerbody.rect)
         ##screen.blit(self.my_Player.image, self.my_Player.rect)
         
         #Draw stats

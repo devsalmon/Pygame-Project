@@ -35,8 +35,9 @@ image_orig.set_colorkey(BLACK)
 #image = image_orig.copy()  
 #image_orig.set_colorkey(BLACK)  
 # define rect for placing the rectangle at the desired position  
-rect = image_orig.get_rect()  
-rect.center = (WIDTH // 2 , HEIGHT // 2)  
+rect = image_orig.get_rect()
+#rect.center = (WIDTH // 2 , HEIGHT // 2)
+#rect.center = (WIDTH // 2 , HEIGHT // 2)  
 # keep rotating the rectangle until running is set to False  
 running = True
 while running:  
@@ -50,17 +51,18 @@ while running:
             running = False  
 
     # making a copy of the old center of the rectangle  
-    old_center = rect.center  
+    ###old_center = rect.center
+    old_center = (300,200)
     # defining angle of the rotation  
-    rot = (rot + rot_speed) % 360  
+    rot = (rot + rot_speed) % 360 
     # rotating the orignal image  
     new_image = py.transform.rotate(image_orig , rot)  
-    rect = new_image.get_rect()  
+    rect = new_image.get_rect()
     # set the rotated rectangle to the old center  
     rect.center = old_center  
     # drawing the rotated rectangle to the screen  
     screen.blit(new_image , rect)
-    screen.blit(test_image , (200, 300))
+    ##screen.blit(test_image , (100, 200))
     # flipping the display after drawing everything  
     py.display.flip()  
 
