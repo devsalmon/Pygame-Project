@@ -5,7 +5,7 @@ from pygame.math import Vector2
 from Classes import *
 from Settings import *
 from os import path
-from math import atan2, degrees, pi
+from math import atan2, degrees, pi, sin, cos, radians
 
 class Game(pygame.sprite.Sprite):
 
@@ -13,10 +13,10 @@ class Game(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         pygame.init()
         self.turnDown = False
-        self.turnUp = False
         self.clock = pygame.time.Clock()
         self.running = True
         self.load_data()
+        self.degs = 0
 
     def load_data(self):
         #Load high score
@@ -116,6 +116,12 @@ class Game(pygame.sprite.Sprite):
             self.all_sprites_group.add(self.my_Path)
 
     def downRamp(self):
+        # Creates jump just before downwards ramp.
+        for count in range(30):
+            self.my_Path = Path(self, self.my_Path.rect.x + self.my_Path.rect.width, self.my_Path.rect.y - 1)
+            # Adds each object to the sprite groups.
+            self.path_group.add(self.my_Path)
+            self.all_sprites_group.add(self.my_Path)
         # The for loop will iterate 125 times creating 125 path objects.
         for count in range(125):
             # Creates a new path object directly on the right of the previous
@@ -158,10 +164,10 @@ class Game(pygame.sprite.Sprite):
     #After certain x value. Harder path functions should start.
 
     def createCollectables(self):
-        #xpos = random.randrange(spaceInFront) + 310
-        xpos = 300
+        xpos = random.randrange(spaceInFront) + 310
+        #xpos = 300
         ypos = random.randrange(HEIGHT - 10)
-        self.my_Collectable = Collectables(xpos, ypos)
+        self.my_Collectable = Collectables(self, xpos, ypos)
         #print(self.my_Collectable.rect.y)
         self.collectable_group.add(self.my_Collectable)
         self.all_sprites_group.add(self.my_Collectable)
@@ -194,13 +200,13 @@ class Game(pygame.sprite.Sprite):
         self.my_Playerbody = Playerbody(self, 200, 50)
         self.all_sprites_group.add(self.my_Playerbody)
 
-        ###self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, True)
+        self.player_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.collectable_group, True)
         
         ###DELETE IF NEEDED
         #self.right_collision_group = pygame.sprite.spritecollide(self.my_Player.rect.bottomleft, self.path_group, False)
 
-        ##for count in range(2): 
-          ##  self.createCollectables()
+        for count in range(100): 
+            self.createCollectables()
 
         # SPAWN PATH
         # Initial straight path segment is called so player starts
@@ -245,18 +251,36 @@ class Game(pygame.sprite.Sprite):
 
         # Update each sprite each loop
         self.all_sprites_group.update()
-        
+        #print(self.my_Playerbody.rot)
         x_coordinate_of_center = (self.my_Player1.rect.x + self.my_Player2.rect.x) // 2
         y_coordinate_of_center = (self.my_Player1.rect.y + self.my_Player2.rect.y) // 2
-        # Set the center of the body to the middle point between both wheels
-        self.my_Playerbody.rect.center = ((x_coordinate_of_center + 5),(y_coordinate_of_center - 5))
+        #### Basically, Playerbody's rect enlarges to create rotation appearance (thats why we set colourkey).
+        #### Therefore the center of Playerbody becomes higher and car starts floating if you rotate before landing
+        #### at the start. To combat this, we worked out the height of the rect's center as it increases with rotation,
+        #### u, and subtract this so that the center is consant and car does not appear to be floating.
+        ###########rotated_in_air = radians(self.my_Playerbody.rot)
+        ##########print(rotated_in_air)
+        ##########u = (42 * math.sin(rotated_in_air) + 26 * math.cos(rotated_in_air)) // 2
+        #print(u)
+        ###########self.my_Playerbody.rect.center = ((x_coordinate_of_center + 10),(y_coordinate_of_center + u - 8))
+        ###self.my_Playerbody.rect.x = (self.my_Player1.rect.x)###(x_coordinate_of_center)
+        ###self.my_Playerbody.rect.y = (y_coordinate_of_center - 5)
         # Find change of x and y
         dx = self.my_Player1.rect.x - self.my_Player2.rect.x
         dy = self.my_Player1.rect.y - self.my_Player2.rect.y
         # Finds the angle between both wheels
+        # pygame flips y axis, so -dy is more accurate.
         rads = atan2(-dy,dx)
         # Converts angle to degrees
-        degs = degrees(rads)
+        self.degs = degrees(rads)
+        #print(self.degs)
+
+        #ROLLL DOWN HILL IF ANGLE
+        #if degs > 120 and degs < 180:
+        #if self.degs == 180:
+            #self.my_Player1.g_Vel = 1
+         #   self.my_Path.acc = PLAYER_
+          #  print("TEST")
                 
         #if player,rect.x + 20 != mypath 
         #IF BOTTOM RIGHT DOESNT HAVE COLLISION PLAYER CAN JUMP
@@ -293,32 +317,32 @@ class Game(pygame.sprite.Sprite):
                 # edge of the path objects.
                 self.my_Player1.rect.bottom = foo.rect.top
 
-        else: #If no collision...
+        #####else: #If no collision...
             #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
-            if self.my_Player1.change_in_y < 0: #if no collision + going up... 
+            #####if self.my_Player1.change_in_y < 0: #if no collision + going up... 
                 #self.my_Player.current_y = 0
                 #self.my_Player.last_y = 0 #makes change_in_y positive.
-                self.my_Player1.g_Vel = self.my_Path.vel #-8 #player should go up.
-                self.my_Player2.g_Vel = self.my_Path.vel
+                #####self.my_Player1.g_Vel = self.my_Path.vel #-8 #player should go up.
+                #####self.my_Player2.g_Vel = self.my_Path.vel
                 #Player should move down quicker
                 #if change in y > 0 allow movement if just collided?
 
 
-                # If the player and path objects collide...
+        # If the player and path objects collide...
         if self.player2_path_collision_group:
             # The player's gravity velocity becomes 0. 
             self.my_Player2.g_Vel = 0
             
             # For every object in the collision group...
-            for foo in self.player1_path_collision_group:
+            #######for foo in self.player1_path_collision_group:
                 # The bootom edge of the player should remain on the top
                 # edge of the path objects.
-                self.my_Player1.rect.bottom = foo.rect.top
+                #####self.my_Player1.rect.bottom = foo.rect.top
 
             for foo in self.player2_path_collision_group:
                 self.my_Player2.rect.bottom = foo.rect.top
 
-        else: #If no collision...
+        else: #If no collision...FLY
             #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
             if self.my_Player2.change_in_y < 0: #if no collision + going up... 
                 #self.my_Player.current_y = 0
@@ -328,16 +352,30 @@ class Game(pygame.sprite.Sprite):
                 #Player should move down quicker
                 #if change in y > 0 allow movement if just collided?
 
-
+        # If both wheels on ground...
         if self.player1_path_collision_group and self.player2_path_collision_group:
-            # Gives body the same gradient as wheels
-            self.my_Playerbody.new_image = pygame.transform.rotate(self.my_Playerbody.image, degs)
+            #IF DGREES ARE WITHIN CERTAIN RANGE..
+            # Gives body the same gradient as wheels.
+            self.my_Playerbody.new_image = pygame.transform.rotate(self.my_Playerbody.image, (self.degs - 180))
+            self.my_Playerbody.rect = self.my_Playerbody.new_image.get_rect()
+            #x_coordinate_of_center = (self.my_Player1.rect.x + self.my_Player2.rect.x) // 2
+            #y_coordinate_of_center = (self.my_Player1.rect.y + self.my_Player2.rect.y) // 2  
+            # If player on its back then round ends.
+            if self.my_Playerbody.rot > 90 and self.my_Playerbody.rot < 270:
+                self.playing = False
+
+            # Makes the Players air rotation the same as the path so it starts its
+            # 360 in the air from the right rotation.
+            self.my_Playerbody.rot = 180 + self.degs
+            
+        # Set the center of the body to the middle point between both wheels
+        self.my_Playerbody.rect.center = ((x_coordinate_of_center + 10),(y_coordinate_of_center + 8))
 
         # PLAYER-COLLECTABLE COLLISIONS
-        ###self.player_SizeUp_collision_group = pygame.sprite.spritecollide(self.my_Player, self.collectable_group, False)
-        ##if self.player_SizeUp_collision_group:
-            #self.my_Player.width = 2
-            #print("test")
+        self.player_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.collectable_group, True)
+        if self.player_collectable_collision_group:
+            self.my_Playerbody.rot_speed = 30
+            print("test")
 
         #SCORE
         self.score = self.my_Path.score
@@ -350,11 +388,6 @@ class Game(pygame.sprite.Sprite):
         #Instructions
         self.insx += self.my_Path.vel   #x pos of info will move appropriately
                                         #vel is negative as path moves left so you add it
-
-        #ENDS GAME
-        if self.my_Player1.running == False:
-            #self.running = False
-            self.playing = False
             
     def events(self):
 

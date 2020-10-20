@@ -15,15 +15,15 @@ class Player(pygame.sprite.Sprite):
         # Allows attributes from the Game class to be accessed.
         self.my_Game = my_Game
         # Sets the width and height of the object to 20 by 20 pixels.
-        self.width = 10
-        self.height = 10
+        self.width = 20
+        self.height = 20
         # Creates the sprite image.
         self.image = pygame.Surface([self.width,self.height])
-        ########self.image = pygame.image.load("test.png")
+        #######self.image = pygame.image.load("test.png")
         ##self.image.set_colorkey(YELLOW)
         self.new_image = self.image
-        self.new_image.set_colorkey(BLACK)
-        self.image.fill(WHITE)
+        #self.new_image.set_colorkey(BLACK)
+        self.image.fill(BLACK)
         # Set the position of the sprite
         #self.new_image = self.image.get_rect()
         #self.rect = self.new_image
@@ -81,10 +81,10 @@ class Player(pygame.sprite.Sprite):
             #cv2.waitKey(0) #!!!!!!!!!!
             #video.release() #!!!!!!!!!!!!
             #cv2.destroyAllWindows #!!!!!!!!!!!!!!
-            self.running = False
+            self.my_Game.playing = False
         #Endif
             
-        keys = pygame.key.get_pressed()
+        #keys = pygame.key.get_pressed()
         #if keys[pygame.K_UP]: #PLAYER projection. Also look at bottom right rect...
          #   self.g_Vel = -5   #A.rect.bottomright. must find y vel at all times for this.
         #ROTATE PLAYER
@@ -116,15 +116,15 @@ class Playerbody(pygame.sprite.Sprite):
         # Allows attributes from the Game class to be accessed.
         self.my_Game = my_Game
         # Sets the width and height of the object to 20 by 20 pixels.
-        self.width = 40
-        self.height = 20
+        ###self.width = 400
+        ###self.height = 200
         # Creates the sprite image.
-        self.image = pygame.Surface([self.width,self.height])
-        ########self.image = pygame.image.load("test.png")
-        ##self.image.set_colorkey(YELLOW)
+        ####self.image = pygame.Surface([self.width,self.height])
+        self.image = pygame.image.load("test.png")
+        #self.image.set_colorkey(YELLOW)
         self.new_image = self.image
         self.new_image.set_colorkey(BLACK)
-        self.image.fill(YELLOW)
+        ####self.image.fill(YELLOW)
         # Set the position of the sprite
         #self.new_image = self.image.get_rect()
         #self.rect = self.new_image
@@ -154,6 +154,7 @@ class Playerbody(pygame.sprite.Sprite):
         #if keys[pygame.K_UP]: #PLAYER projection. Also look at bottom right rect...
          #   self.g_Vel = -5   #A.rect.bottomright. must find y vel at all times for this.
         #ROTATE PLAYER
+        # If space is pressed and in the air...
         if keys[pygame.K_SPACE] and not self.my_Game.player1_path_collision_group and not self.my_Game.player2_path_collision_group:
             #making a copy of the old center of the rectangle
             old_center = self.rect.center
@@ -167,7 +168,20 @@ class Playerbody(pygame.sprite.Sprite):
             #set the rotated rectangle to the old center
             self.rect.center = old_center
             #screen.blit(new_image, self.rect)
+        #else:
+         #   self.rot = 0
     #End method
+            #print(self.rot)
+         #if collision + landing on back then die   
+        # If both wheels on ground...
+        #elif self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group:
+            #IF DGREES ARE WITHIN CERTAIN RANGE..
+            # Gives body the same gradient as wheels.
+         #   self.new_image = pygame.transform.rotate(self.image, (self.my_Game.degs - 180))
+        #ELSE RUNNING = FALSE
+        #If collided and on its back, new game...
+        #elif self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.rot > 90 and self.rot < 270:
+         #   self.my_Game.playing = False
 
 # End Player class
 
@@ -199,6 +213,7 @@ class Path(pygame.sprite.Sprite):
         self.rawscore = 0
         self.score = 0
         self.origx = 0
+        self.rollDown = False
         
     def update(self):
         if self.my_Game.score == 0:
@@ -212,6 +227,12 @@ class Path(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group:
             # Sets acceleration equal to the player acceleration constant.
             self.acc = PLAYER_ACC
+        # Handles rolling down the hill going downwards.
+        elif not keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.my_Game.degs > 100 and self.my_Game.degs < 150:
+            self.acc = PLAYER_ACC
+        # Handles rolling down the hill going upwards.
+        elif not keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.my_Game.degs < -100 and self.my_Game.degs > -150:
+            self.acc = -PLAYER_ACC
             
         # Motion equations for constant acceleration (SUVAT).
         # This reduces the acceleration as the velocity increases, allowing
@@ -234,12 +255,26 @@ class Path(pygame.sprite.Sprite):
         #self.my_Game.collision = pygame.sprite.collide_rect(self.my_Game.my_Player.bottomright, self)
 # End Path class
 
-class Collectables(pygame.sprite.Sprite):
+#class Collectables(pygame.sprite.Sprite):
+#
+ #   def __init__(self, xpos, ypos):
+  #  #def __init__(self, my_Game, xpos, ypos):
+#
+ #       super().__init__()
+  ##      self.width = 20
+    #    self.height = 20
+     ##   self.image = pygame.Surface([self.width,self.height])
+       # self.image.fill(YELLOW)
+        # Set the position of the sprite
+        #self.rect = self.image.get_rect()
+        #self.rect.x = xpos
+        #self.rect.y = ypos
 
-    def __init__(self, xpos, ypos):
-    #def __init__(self, my_Game, xpos, ypos):
+class Collectables(Path):
 
-        super().__init__()
+    def __init__(self, my_Game, xpos, ypos):
+
+        super().__init__( my_Game, xpos, ypos)
         self.width = 20
         self.height = 20
         self.image = pygame.Surface([self.width,self.height])
@@ -249,9 +284,14 @@ class Collectables(pygame.sprite.Sprite):
         self.rect.x = xpos
         self.rect.y = ypos
 
+    def remove_from_group(self):
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.collectable_group.remove(self)
+
 class SizeUp(Collectables):
     def __init__(self, xpos, ypos):  # you can pass some other properties
-        super().__init__(xpos, ypos)  # you must pass required args to Alien's __init__
+        super().__init__(width, height, xpos, ypos)  # you must pass required args to Alien's __init__
         # your custom stuff:
         #self.player = player
         #self.my_Game = my_Game
