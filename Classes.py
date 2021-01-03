@@ -120,7 +120,7 @@ class Playerbody(pygame.sprite.Sprite):
         ###self.height = 200
         # Creates the sprite image.
         ####self.image = pygame.Surface([self.width,self.height])
-        self.image = pygame.image.load("test.png")
+        self.image = pygame.image.load("car.png")
         #self.image.set_colorkey(YELLOW)
         self.new_image = self.image
         self.new_image.set_colorkey(BLACK)
@@ -233,12 +233,27 @@ class Path(pygame.sprite.Sprite):
         # Handles rolling down the hill going upwards.
         elif not keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.my_Game.degs < -100 and self.my_Game.degs > -150:
             self.acc = -PLAYER_ACC
+
+        # If player has collided with the turbo boost, they should get boosted.
+        if keys[pygame.K_SPACE] and self.my_Game.turbo == True:
+            self.vel = -12
             
         # Motion equations for constant acceleration (SUVAT).
         # This reduces the acceleration as the velocity increases, allowing
         # the player to decelerate when the space key is not pressed, and also
         # sets a limit to the maximum speed possible to reach.
         self.acc += self.vel * PLAYER_FRICTION
+
+        # If the space key is pressed and the player and path are colliding and ice boost is active...
+        if keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.my_Game.ice == True:
+            # Sets acceleration equal to the player acceleration constant.
+            self.acc = ICE_ACC
+            self.acc += self.vel * ICE_FRICTION
+
+        # If ice boost is active
+        #if self.my_Game.ice == True:
+         #   self.acc += self.vel * -0.01
+        
         # V = U + AT.
         self.vel = self.vel + self.acc
         # S = UT + 1/2AT^2.
@@ -270,28 +285,43 @@ class Path(pygame.sprite.Sprite):
         #self.rect.x = xpos
         #self.rect.y = ypos
 
-class Collectables(Path):
+class Spin(Path):
 
     def __init__(self, my_Game, xpos, ypos):
 
-        super().__init__( my_Game, xpos, ypos)
-        self.width = 20
-        self.height = 20
-        self.image = pygame.Surface([self.width,self.height])
-        self.image.fill(YELLOW)
+        super().__init__(my_Game, xpos, ypos)
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("spin_collectable.png")
         # Set the position of the sprite
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
-    def remove_from_group(self):
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
         # removes path from path group.
         if self.rect.x < 30:
-            self.my_Game.collectable_group.remove(self)
+            self.my_Game.spin_collectable_group.remove(self)
+        
 
-class SizeUp(Collectables):
-    def __init__(self, xpos, ypos):  # you can pass some other properties
-        super().__init__(width, height, xpos, ypos)  # you must pass required args to Alien's __init__
+  ##  def remove_from_group(self):
+        # removes path from path group.
+    ##    if self.rect.x < 30:
+      ##      self.my_Game.collectable_group.remove(self)
+
+#class Spin(Path):
+ #   
+  #  def __init__(self, xpos, ypos):  # you can pass some other properties
+   #     
+    #    super().__init__(width, height, xpos, ypos)  # you must pass required args to Alien's __init__
+     #   self.image = pygame.image.load("test.png")
+      #  #self.image.set_colorkey(YELLOW)
+       # self.new_image = self.image
         # your custom stuff:
         #self.player = player
         #self.my_Game = my_Game
@@ -308,3 +338,141 @@ class SizeUp(Collectables):
         #for count in range(20):
          #   self.spawn()
         #Next count
+
+class TurboBoost(Path):
+    
+    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+        
+        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("turbo_collectable.png")
+        # Set the position of the sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.turbo_collectable_group.remove(self)
+
+class IcePath(Path):
+    
+    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+        
+        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("ice_collectable.png")
+        # Set the position of the sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.ice_collectable_group.remove(self)
+
+class Giant(Path):
+    
+    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+        
+        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("giant_collectable.png")
+        # Set the position of the sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.giant_collectable_group.remove(self)
+
+class Small(Path):
+    
+    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+        
+        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("small_collectable.png")
+        # Set the position of the sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.small_collectable_group.remove(self)
+
+class Sports(Path):
+    
+    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+        
+        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("sports_car_collectable.png")
+        # Set the position of the sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.sports_collectable_group.remove(self)
+
+class Random(Path):
+    
+    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+        
+        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
+        #self.width = 20
+        #self.height = 20
+        #self.image = pygame.Surface([self.width,self.height])
+        #self.image.fill(YELLOW)
+        self.image = pygame.image.load("random_collectable.png")
+        # Set the position of the sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+
+    def update(self):
+
+        # inlcuedes path update loop.
+        super().update()
+        # removes path from path group.
+        if self.rect.x < 30:
+            self.my_Game.random_collectable_group.remove(self)

@@ -8,6 +8,8 @@ YELLOW = (255,255,0)
 #Properities
 PLAYER_ACC = -1
 PLAYER_FRICTION = -0.06
+ICE_ACC = -0.4
+ICE_FRICTION = -0.01
 GRAVITY = 1
 ROT_SPEED = 15
 
@@ -23,4 +25,4 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Car Game")
 
 
-#NEXT STEP IS GETTING CAR TO ROLL DOWN HILL
+#clipartkey
