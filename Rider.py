@@ -53,24 +53,28 @@ class Game(pygame.sprite.Sprite):
             self.all_sprites_group.add(self.my_Path)
 
     def manualCurveDown(self):
+        
         # Creates 5 path objects going down at a -1/2 gradient.
         for count in range(5):
             self.my_Path = Path(self, self.my_Path.rect.x + 2, self.my_Path.rect.y + 1)
             # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+            
         # Creates 4 path objects going down at a -1/3 gradient.
         for count in range(4):
             self.my_Path = Path(self, self.my_Path.rect.x + 3, self.my_Path.rect.y + 1)
             # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+            
         # Creates 3 path objects going down at a -1/4 gradient.    
         for count in range(3):
             self.my_Path = Path(self, self.my_Path.rect.x + 4, self.my_Path.rect.y + 1)
             # Adds each object to the sprite groups.
             self.path_group.add(self.my_Path)
             self.all_sprites_group.add(self.my_Path)
+            
         # Creates 5 level path objects at the bottom of the curve.
         for count in range(5):
             self.my_Path = Path(self, self.my_Path.rect.x + 1, self.my_Path.rect.y)
@@ -164,7 +168,7 @@ class Game(pygame.sprite.Sprite):
             paths = [self.manualCurveDown, self.manualCurveUp, self.downRamp]
             # Chooses a random item from the list and executes the selected method.
             random.choice(paths)()
-        # After 6000 pixels, more gaps should be introduced.
+        # After 5000 pixels, more gaps should be introduced.
         else:
             # Stores the compatible path components in a list.
             paths = [self.manualCurveDown, self.manualCurveUp, self.downRamp, self.pathGap]
@@ -180,19 +184,17 @@ class Game(pygame.sprite.Sprite):
             paths = [self.manualCurveDown, self.manualCurveUp, self.upRamp]
             # Chooses a random item from the list and executes the selected method.
             random.choice(paths)()
-        # After 6000 pixels, more gaps should be introduced.
+        # After 3000 pixels, more gaps should be introduced.
         else:
             # Stores the compatible path components in a list.
             paths = [self.manualCurveDown, self.manualCurveUp, self.upRamp, self.pathGap]
             # Chooses a random item from the list and executes the selected method.
             random.choice(paths)()
 
-    #After certain x value. Harder path functions should start.
-
     def createCollectables(self):
         xpos = self.my_Path.rect.x#random.randrange(spaceInFront) + 310
         #xpos = 300
-        ypos = random.randrange(self.my_Path.rect.y- 45)#random.randrange(HEIGHT - 10)
+        ypos = random.randrange(self.my_Path.rect.y - 45)#random.randrange(HEIGHT - 10)
         # Stores the collectables in a list.
         collectable_list = [Spin, TurboBoost, IcePath, Giant, Small, Sports, Random]
         # Gets a collectable chosen at random from the list.
@@ -235,7 +237,7 @@ class Game(pygame.sprite.Sprite):
         self.all_sprites_group = pygame.sprite.Group()
         # Create a sprite group of the paths
         self.path_group = pygame.sprite.Group()
-        # Create a sprite group of the collectables
+        # Create a sprite group for each collectable.
         self.spin_collectable_group = pygame.sprite.Group()
         self.turbo_collectable_group = pygame.sprite.Group()
         self.ice_collectable_group = pygame.sprite.Group()
@@ -244,7 +246,7 @@ class Game(pygame.sprite.Sprite):
         self.sports_collectable_group = pygame.sprite.Group()
         self.random_collectable_group = pygame.sprite.Group()
 
-        # Start timers
+        # Timers for collectables when not in use.
         self.start_spin_time = 9999999999
         self.start_turbo_time = 9999999999
         self.start_ice_time = 9999999999
@@ -253,34 +255,29 @@ class Game(pygame.sprite.Sprite):
         self.start_sports_time = 9999999999
         self.start_random_time = 9999999999
 
-        # Collectables display initial values
-        #self.current_collectable_1 = ""
-        #self.current_collectable_2 = ""
-        #self.current_collectable_3 = ""
-        #self.current_collectable_4 = ""
-        #self.current_collectable_5 = ""
-        #self.current_collectable_6 = ""
-        #self.current_collectable_7 = ""
-        # Gives blank value to get rid of undefined blit error.
+        # Creates list for displaying accurate collectables.
         self.active_collectables_list = []
                                          
-        # Boolean variables for collectables
+        # Boolean variables for collectables.
         self.turbo = False
         self.ice = False
         self.random = False
 
-        # Create the Objects
-        # Player wheel 1
+        # Instantiates the player class which will act as two wheels.
         self.my_Player1 = Player(self, 280, 50)
-        self.all_sprites_group.add(self.my_Player1)
-        self.player1_path_collision_group = pygame.sprite.spritecollide(self.my_Player1, self.path_group, False)
-        # Player wheel 2
         self.my_Player2 = Player(self, 295, 50)
+
+        # Adds the player objects to the sprite group.
+        self.all_sprites_group.add(self.my_Player1)
         self.all_sprites_group.add(self.my_Player2)
+
+        # Instantiated here and in update.
+        self.player1_path_collision_group = pygame.sprite.spritecollide(self.my_Player1, self.path_group, False)
         self.player2_path_collision_group = pygame.sprite.spritecollide(self.my_Player2, self.path_group, False)
 
-        ####RECTANGLE
-        self.my_Playerbody = Playerbody(self, 200, 50)
+        # Instantiates the Playerbody class which will hold the car image.
+        self.my_Playerbody = Playerbody(self)
+        # Adds object to sprite group.
         self.all_sprites_group.add(self.my_Playerbody)
         
         # CREATEs collision collctable groups
@@ -320,7 +317,7 @@ class Game(pygame.sprite.Sprite):
                 # Spawns random upwards components.
                 self.createPath_u()
 
-            # Ever 3 path components...
+            # Ever 3 path components create a collectable.
             if count % 3 == 0 and self.my_Path.rect.y > 45: 
                 self.createCollectables()
 
@@ -343,8 +340,7 @@ class Game(pygame.sprite.Sprite):
         # Update each sprite each loop
         self.all_sprites_group.update()
         #print(self.my_Playerbody.rot)
-        x_coordinate_of_center = (self.my_Player1.rect.x + self.my_Player2.rect.x) // 2
-        y_coordinate_of_center = (self.my_Player1.rect.y + self.my_Player2.rect.y) // 2
+       
         #### Basically, Playerbody's rect enlarges to create rotation appearance (thats why we set colourkey).
         #### Therefore the center of Playerbody becomes higher and car starts floating if you rotate before landing
         #### at the start. To combat this, we worked out the height of the rect's center as it increases with rotation,
@@ -356,13 +352,15 @@ class Game(pygame.sprite.Sprite):
         ###########self.my_Playerbody.rect.center = ((x_coordinate_of_center + 10),(y_coordinate_of_center + u - 8))
         ###self.my_Playerbody.rect.x = (self.my_Player1.rect.x)###(x_coordinate_of_center)
         ###self.my_Playerbody.rect.y = (y_coordinate_of_center - 5)
-        # Find change of x and y
+        # Find difference of x and y between both wheels
+        # in order to find the gradient.
         dx = self.my_Player1.rect.x - self.my_Player2.rect.x
-        dy = self.my_Player1.rect.y - self.my_Player2.rect.y
-        # Finds the angle between both wheels
-        # pygame flips y axis, so -dy is more accurate.
-        rads = atan2(-dy,dx)
-        # Converts angle to degrees
+        # I subtract the second wheel from the first here as the
+        # y coordinates are flipped in pygame
+        dy = self.my_Player2.rect.y - self.my_Player1.rect.y
+        # Finds the angle in radians between both wheels.
+        rads = atan2(dy,dx)
+        # Converts angle to degrees.
         self.degs = degrees(rads)
         #print(self.degs)
 
@@ -385,7 +383,7 @@ class Game(pygame.sprite.Sprite):
         
         # PLAYER-PATH COLLISIONS
         # Creates a group of the path objects the player collides with.
-        # False as the last argument indicates that the path objects should
+        # False is the last argument to indicate that the path objects should
         # not destroy on collision.
         self.player1_path_collision_group = pygame.sprite.spritecollide(self.my_Player1, self.path_group, False)
         self.player2_path_collision_group = pygame.sprite.spritecollide(self.my_Player2, self.path_group, False)
@@ -396,14 +394,14 @@ class Game(pygame.sprite.Sprite):
          #   print("test")
 
 
-        # If the player and path objects collide...
+        # If the back wheel and path objects collide...
         if self.player1_path_collision_group:
-            # The player's gravity velocity becomes 0. 
+            # The back wheel's gravity velocity becomes 0. 
             self.my_Player1.g_Vel = 0
                        
             # For every object in the collision group...
             for foo in self.player1_path_collision_group:
-                # The bootom edge of the player should remain on the top
+                # The bootom edge of the wheel should remain on the top
                 # edge of the path objects.
                 self.my_Player1.rect.bottom = foo.rect.top
 
@@ -417,35 +415,31 @@ class Game(pygame.sprite.Sprite):
                 #Player should move down quicker
                 #if change in y > 0 allow movement if just collided?
 
-        # If the player and path objects collide...
+        # If the front wheel and path objects collide...
         if self.player2_path_collision_group:
-            # The player's gravity velocity becomes 0. 
+            # The front wheel's gravity velocity becomes 0. 
             self.my_Player2.g_Vel = 0
             
             # For every object in the collision group...
-            #######for foo in self.player1_path_collision_group:
-                # The bootom edge of the player should remain on the top
-                # edge of the path objects.
-                #####self.my_Player1.rect.bottom = foo.rect.top
-
             for foo in self.player2_path_collision_group:
+                # The bootom edge of the wheel should remain on the top
+                # edge of the path objects.
                 self.my_Player2.rect.bottom = foo.rect.top
 
-        else: #If no collision...FLY
-            #self.my_Path.acc = 0 #Player shouldn't accelerate when not colliding:
-            if self.my_Player2.change_in_y < 0: #if no collision + going up... 
-                #self.my_Player.current_y = 0
-                #self.my_Player.last_y = 0 #makes change_in_y positive.
-                self.my_Player1.g_Vel = self.my_Path.vel #-8 #player should go up.
+        # If the front wheel is not colling with the path...
+        else:
+            # If the back wheel has upwards velocity...
+            if self.my_Player1.change_in_y < 0:
+                # Both wheels' gravity velocity should be equal to their velocity.                
+                self.my_Player1.g_Vel = self.my_Path.vel
                 self.my_Player2.g_Vel = self.my_Path.vel
-                #Player should move down quicker
-                #if change in y > 0 allow movement if just collided?
 
         # If both wheels on ground...
         if self.player1_path_collision_group and self.player2_path_collision_group:
-            #IF DGREES ARE WITHIN CERTAIN RANGE..
-            # Gives body the same gradient as wheels.
+            # Rotates body to give same gradient as wheels.
             self.my_Playerbody.new_image = pygame.transform.rotate(self.my_Playerbody.image, (self.degs - 180))
+            # Makes centre position equal to previous centre position. (new_image has
+            # already been updated in Playerbody class to have the same centre).
             self.my_Playerbody.rect = self.my_Playerbody.new_image.get_rect()
             #x_coordinate_of_center = (self.my_Player1.rect.x + self.my_Player2.rect.x) // 2
             #y_coordinate_of_center = (self.my_Player1.rect.y + self.my_Player2.rect.y) // 2  
@@ -453,73 +447,72 @@ class Game(pygame.sprite.Sprite):
             if self.my_Playerbody.rot > 90 and self.my_Playerbody.rot < 270:
                 self.playing = False
 
-            # Makes the Players air rotation the same as the path so it starts its
-            # 360 in the air from the right rotation.
+            # Makes the car's initial air rotation the same as the path's last gradient.
             self.my_Playerbody.rot = 180 + self.degs
 
         if self.my_Playerbody.rot > 90 and self.my_Playerbody.rot < 270:
             self.flip_score += 1
-            #print("test")
-            
-        # Set the center of the body to the middle point between both wheels
+            #print("test")    
+ 
+        # Calculates and stores centre point of wheels the wheels.
+        x_coordinate_of_center = (self.my_Player1.rect.x + self.my_Player2.rect.x) // 2
+        y_coordinate_of_center = (self.my_Player1.rect.y + self.my_Player2.rect.y) // 2
+        # Set the center of the body to the middle point between both wheels.
         self.my_Playerbody.rect.center = ((x_coordinate_of_center + 10),(y_coordinate_of_center + 8))
 
         # PLAYER-COLLECTABLE COLLISIONS
         # SPIN
-        #print(time.time())
+        # Creates the player-spin collision group.
         self.player_spin_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.spin_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_spin_collectable_collision_group:
-            #Record current time
+            # Record current time.
             self.start_spin_time = time.time()
-            ##print(start_spin)
             # Set rotation speed to 25.
             self.my_Playerbody.rot_speed = 25
-            # Display collectable in use to player.
-            #self.displayCollectables("SPIN!")
+            # If SPIN! is not already being displayed then it should be.
             if "SPIN!" not in self.active_collectables_list:
                 self.active_collectables_list.append("SPIN!")
         # When 10 seconds have passed.
         if time.time() > (self.start_spin_time + 10):
-            #print("SPIN") #DO SELF.SPIN = 9999999
             # Make rotation speed back to normal.
             self.my_Playerbody.rot_speed = ROT_SPEED
-            # Reset the timer
+            # Reset the timer.
             self.start_spin_time = 9999999999
-            # Remove display once collectable finished.
-            #self.removeCollectables("SPIN!")
+            # Remove from display.
             self.active_collectables_list.remove("SPIN!")
 
         # TURBO
+        # Creates the player-turbo collision group.
         self.player_turbo_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.turbo_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_turbo_collectable_collision_group:
-            # Record current time
+            # Record current time.
             self.start_turbo_time = time.time()
+            # Set the global boolean variable for turbo equal to True
+            # so that it can be accessed in other parts of the program.
             self.turbo = True
-            # Display collectable in use to player.
+            # If TURBO! is not already being displayed then it should be.
             if "TURBO!" not in self.active_collectables_list:
                 self.active_collectables_list.append("TURBO!")
-                #self.displayCollectables("TURBO!")
         # When 10 seconds have passed.
         if time.time() > (self.start_turbo_time + 10):
+            # Set turbo to False.
             self.turbo = False
-            #print("TURBO")
-            # Reset the timer
+            # Reset the timer.
             self.start_turbo_time = 9999999999
-            # Remove display once collectable finished.
-            #self.removeCollectables("TURBO!")
+            # Remove from display.
             self.active_collectables_list.remove("TURBO!")
-       # if self.turbo == True:
-        #    keys = pygame.key.get_pressed()
-            # If the space key is pressed set velocity to 5.
-            #if keys[pygame.K_UP]:
-                # Sets acceleration equal to the player acceleration constant.
-             #   self.my_Path.vel = 1000
-              #  print("Test")
             
         # ICE
+        # Creates the player-ice collision group.
         self.player_ice_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.ice_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_ice_collectable_collision_group:
+            # Record current time.
             self.start_ice_time = time.time()
+            # Set the global boolean variable for ice equal to True
+            # so that it can be accessed in other parts of the program.
             self.ice = True
             # Display collectable in use to player.
             if "ICE!" not in self.active_collectables_list:
@@ -533,41 +526,55 @@ class Game(pygame.sprite.Sprite):
             self.active_collectables_list.remove("ICE!")
 
         # GIANT
+        # Creates the player-giant collision group.
         self.player_giant_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.giant_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_giant_collectable_collision_group:
+            # Record current time.
             self.start_giant_time = time.time()
+            # Change the image of the Playerbody sprite to a giant car.
             self.my_Playerbody.image = pygame.image.load("giant_car.png")
             # Display collectable in use to player.
             if "GIANT!" not in self.active_collectables_list:
                 self.active_collectables_list.append("GIANT!")
         # When 10 seconds have passed.
         if time.time() > (self.start_giant_time + 10):
+            # Change the Playerbody sprite image back to its original one.
             self.my_Playerbody.image = pygame.image.load("car.png")
-            # Reset the timer
+            # Reset the timer.
             self.start_giant_time = 9999999999
             # Remove display once collectable finished.
             self.active_collectables_list.remove("GIANT!")
 
         # SMALL
+        # Creates the player-small collision group.
         self.player_small_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.small_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_small_collectable_collision_group:
+            # Record current time.
             self.start_small_time = time.time()
+            # Change the image of the Playerbody sprite to a small car.
             self.my_Playerbody.image = pygame.image.load("small_car.png")
             # Display collectable in use to player.
             if "SMALL!" not in self.active_collectables_list:
                 self.active_collectables_list.append("SMALL!")
         # When 10 seconds have passed.
         if time.time() > (self.start_small_time + 10):
+            # Change the Playerbody sprite image back to its original one.
             self.my_Playerbody.image = pygame.image.load("car.png")
-            # Reset the timer
+            # Reset the timer.
             self.start_small_time = 9999999999
             # Remove display once collectable finished.
             self.active_collectables_list.remove("SMALL!")
 
         # SPORTS CAR
+        # Creates the player-sports collision group.
         self.player_sports_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.sports_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_sports_collectable_collision_group:
+            # Record current time.
             self.start_sports_time = time.time()
+            # Change the image of the Playerbody sprite to a sports car.
             self.my_Playerbody.image = pygame.image.load("sports_car.png")
             # Display collectable in use to player.
             if "SPORTS!" not in self.active_collectables_list:
@@ -575,43 +582,51 @@ class Game(pygame.sprite.Sprite):
         # When 10 seconds have passed.
         if time.time() > (self.start_sports_time + 10):
             self.my_Playerbody.image = pygame.image.load("car.png")
-            # Reset the timer
+            # Reset the timer.
             self.start_sports_time = 9999999999
             # Remove display once collectable finished.
             self.active_collectables_list.remove("SPORTS!")
 
         # RANDOM
+        # Creates the player-random collision group.
         self.player_random_collectable_collision_group = pygame.sprite.spritecollide(self.my_Playerbody, self.random_collectable_group, True)
+        # If the player has collided with the collectable...
         if self.player_random_collectable_collision_group:
+            # Record current time.
             self.start_random_time = time.time()
-            # choose random no
+            # Generate a random number between 1 and 6.
             random_number = random.randint(1, 6)
             if random_number == 1:
-                # Set rotation speed to 25.
+                # Activates spin collectable.
                 self.my_Playerbody.rot_speed = 25
             elif random_number == 2:
+                # Activates turbo collectable.
                 self.turbo = True
             elif random_number == 3:
+                # Activates ice collectable.
                 self.ice = True
             elif random_number == 4:
+                # Activates giant collectable.
                 self.my_Playerbody.image = pygame.image.load("giant_car.png")
             elif random_number == 5:
+                # Activates small collectable.
                 self.my_Playerbody.image = pygame.image.load("small_car.png")
             elif random_number == 6:
+                # Activates sports collectable.
                 self.my_Playerbody.image = pygame.image.load("sports_car.png")
             # Display collectable in use to player.
             if "RANDOM!" not in self.active_collectables_list:
                 self.active_collectables_list.append("RANDOM!")
         # When 10 seconds have passed.
         if time.time() > (self.start_random_time + 10):
-            # Make rotation speed back to normal.
+            # Set all collectables back to normal.
             self.my_Playerbody.rot_speed = ROT_SPEED
             self.turbo = False
             self.ice = False
             self.my_Playerbody.image = pygame.image.load("car.png")
             self.my_Playerbody.image = pygame.image.load("car.png")
             self.my_Playerbody.image = pygame.image.load("car.png")
-            # Reset the timer
+            # Reset the timer.
             self.start_random_time = 9999999999
             # Remove display once collectable finished.
             self.active_collectables_list.remove("RANDOM!")
@@ -645,7 +660,7 @@ class Game(pygame.sprite.Sprite):
         #self.all_sprites_group.draw(screen)
         self.path_group.draw(screen) #Is first block appearing fine?
 
-        #Draws collectables group
+        # Draws collectable groups
         self.spin_collectable_group.draw(screen)
         self.turbo_collectable_group.draw(screen)
         self.ice_collectable_group.draw(screen)
@@ -658,8 +673,8 @@ class Game(pygame.sprite.Sprite):
         #pygame.draw.line(screen, WHITE, (0,0), (200,200), 5)
         #pygame.draw.arc(screen, WHITE,[80,80,80,80], 0.5, 0.5, 10)
         #Draw player which can rotate
-        screen.blit(self.my_Player1.new_image, self.my_Player1.rect)
-        screen.blit(self.my_Player2.new_image, self.my_Player2.rect)
+        #screen.blit(self.my_Player1.new_image, self.my_Player1.rect)
+        #screen.blit(self.my_Player2.new_image, self.my_Player2.rect)
         screen.blit(self.my_Playerbody.new_image, self.my_Playerbody.rect)
         #screen.blit(self.my_Player.image, self.my_Player.rect)
         
@@ -693,15 +708,16 @@ class Game(pygame.sprite.Sprite):
             
         # -- flip display to reveal new position of objects
         pygame.display.flip()
-
+        
+    # Draws text onto the screen.
     def draw_stats(self, x, y, stats, size, colour):
-        # Select the font to use, size, bold, italics
+        # Select the font to use, size, bold, italics.
         font = pygame.font.SysFont('Calibri', size, True, False)
         # Render the text. "True" means anti-aliased text.
         # Note: This line creates an image of the letters,
         # but does not put it on the screen yet.
         text = font.render(str(stats), True, colour)
-        # Puts the image of the text on the screen at x,y
+        # Puts the image of the text on the screen at x,y.
         screen.blit(text, (x, y))
 
     # Display collectable in use to player.

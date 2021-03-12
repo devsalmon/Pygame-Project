@@ -14,7 +14,7 @@ GRAVITY = 1
 ROT_SPEED = 15
 
 #screen size
-spaceInFront = 7000
+spaceInFront = 700
 WIDTH = 800
 HEIGHT = 500
 size = (WIDTH, HEIGHT) #800/500

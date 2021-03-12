@@ -56,17 +56,30 @@ class Player(pygame.sprite.Sprite):
         #S = UT + 1/2AT^2.
         self.rect.y += self.g_Vel + 0.5 * self.g_Acc
 
-        #Finds player's y component of velocity when collided(for lift off)
+        # Finds player's y component of velocity when on path. (For lift off).
+        # If both wheels are on the path...
         if self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group:
-            self.t += 1 #Later every 60 loops (1 second) the y component of velocity is given.
+            # Add 1 to the counter.
+            self.t += 1
+            # If it is time to check the velocity...
             if self.y_reading == True:
+                # Store the current y position.
                 self.last_y = self.rect.y
+                # Set self.y_reading to false in order to allow time to
+                # pass before storing the y position again.
                 self.y_reading = False
-            self.current_y = self.rect.y #Every loop current y position is returned so that it can be subtracted from last position taken (last_y)
+            # Every loop the current y position is returned and stored
+            # so that it can be subtracted from self.last_y to find the
+            # change in the y coordinates. This can be used to work out
+            # the vertical component of velocity.
+            self.current_y = self.rect.y
             self.change_in_y = self.current_y - self.last_y
-            if self.t % 30 == 0: #Every 0.5 seconds set current y reading to last one.
+            # Everytime self.t reaches a multiple of 20 which is about 0.3 seconds,
+            # set the self.y_reading equal to True to update self.last_y.
+            if self.t % 20 == 0:
                 self.y_reading = True
-            #print(self.change_in_y) #Fine but should be improved maybe with time.wait
+        # If the wheels are not touching the path, we do not need to worry about
+        # vertical velocity as gravity is acting on the car appropriately already.
         else:
             self.change_in_y = 0
             
@@ -109,67 +122,60 @@ class Player(pygame.sprite.Sprite):
 class Playerbody(pygame.sprite.Sprite):
     
     # Define the constructor for Player.
-    def __init__(self, my_Game, posx, posy):
+    def __init__(self, my_Game):
         
         # Call the sprite constructor.
         super().__init__()
         # Allows attributes from the Game class to be accessed.
         self.my_Game = my_Game
-        # Sets the width and height of the object to 20 by 20 pixels.
-        ###self.width = 400
-        ###self.height = 200
-        # Creates the sprite image.
-        ####self.image = pygame.Surface([self.width,self.height])
+        # Creates image of car.
         self.image = pygame.image.load("car.png")
-        #self.image.set_colorkey(YELLOW)
-        self.new_image = self.image
-        self.new_image.set_colorkey(BLACK)
+        # Gives the rotating image a transparent background.
+        self.image.set_colorkey(BLACK)
+        # The new image at the start will be equal to the current image.
+        self.new_image = self.image        
+        # Creates variables that will define the angle and speed of rotation.
+        self.rot = 0
+        self.rot_speed = ROT_SPEED
         ####self.image.fill(YELLOW)
         # Set the position of the sprite
         #self.new_image = self.image.get_rect()
         #self.rect = self.new_image
         self.rect = self.image.get_rect()
-        self.rect.x = posx
-        self.rect.y = posy
-        self.running = True
         # Sets the acceleration of the gravitational
         # force equal to the constant.
         self.g_Acc = GRAVITY
         # The initial velocity of gravity will be 0.
         self.g_Vel = 0
-        #For rotation:
-        self.rot = 0
-        self.rot_speed = ROT_SPEED
-        self.rect.center = (posx, posy)
         #For finding y velocity:
         self.y_reading = False
         self.t = 0
         self.last_y = 0
         self.current_y = 0
         self.change_in_y = 0
+        self.running = True
 
     def update(self):
-            
+
+        # Stores which keys get pressed.    
         keys = pygame.key.get_pressed()
         #if keys[pygame.K_UP]: #PLAYER projection. Also look at bottom right rect...
          #   self.g_Vel = -5   #A.rect.bottomright. must find y vel at all times for this.
         #ROTATE PLAYER
-        # If space is pressed and in the air...
+        # If the space key is pressed and the player and path are colliding...
         if keys[pygame.K_SPACE] and not self.my_Game.player1_path_collision_group and not self.my_Game.player2_path_collision_group:
-            #making a copy of the old center of the rectangle
+            # Makes a copy of the center of the square to ensure the newly rotated
+            # square does not change position.
             old_center = self.rect.center
-            #defines angle of rotation
+            # Creates the angle of rotation.
             self.rot = (self.rot + self.rot_speed) % 360
-           #rotating the orignal image  
+            # Orignal image is rotated, creating a new image.  
             self.new_image = pygame.transform.rotate(self.image , self.rot)
-            #self.image = self.new_image#
+            # The new image is defined as a new object.
             self.rect = self.new_image.get_rect()
-            #self.rect = self.image.get_rect()#
-            #set the rotated rectangle to the old center
+            # The rotated square's center is set to the old center.
             self.rect.center = old_center
-            #screen.blit(new_image, self.rect)
-        #else:
-         #   self.rot = 0
+            
     #End method
             #print(self.rot)
          #if collision + landing on back then die   
@@ -218,7 +224,8 @@ class Path(pygame.sprite.Sprite):
     def update(self):
         if self.my_Game.score == 0:
             self.origx = self.rect.x
-         # Acceleration must always be 0 except for when space key is pressed.
+
+        # Acceleration must always be 0 except for when space key is pressed.
         self.acc = 0
         # Stores which keys get pressed.
         keys = pygame.key.get_pressed()
@@ -229,9 +236,11 @@ class Path(pygame.sprite.Sprite):
             self.acc = PLAYER_ACC
         # Handles rolling down the hill going downwards.
         elif not keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.my_Game.degs > 100 and self.my_Game.degs < 150:
+            # Car rolls forwards down hill.
             self.acc = PLAYER_ACC
         # Handles rolling down the hill going upwards.
         elif not keys[pygame.K_SPACE] and self.my_Game.player1_path_collision_group and self.my_Game.player2_path_collision_group and self.my_Game.degs < -100 and self.my_Game.degs > -150:
+            # Car rolls backwards down hill.
             self.acc = -PLAYER_ACC
 
         # If player has collided with the turbo boost, they should get boosted.
@@ -259,7 +268,7 @@ class Path(pygame.sprite.Sprite):
         # S = UT + 1/2AT^2.
         self.rect.x += math.ceil(self.vel) + (0.5 * self.acc)
         
-        # removes path from path group.
+        # Removes path from path group when the path is behind the player.
         if self.rect.x < 30:
             self.my_Game.path_group.remove(self)
 
@@ -284,16 +293,16 @@ class Path(pygame.sprite.Sprite):
         #self.rect = self.image.get_rect()
         #self.rect.x = xpos
         #self.rect.y = ypos
-
+        
+# Defines the sprite class Spin which is a subclass of 'Path'.
 class Spin(Path):
-
+    
+    # Defines the constructor.
     def __init__(self, my_Game, xpos, ypos):
-
+        
+        # Calls the sprite constructor.
         super().__init__(my_Game, xpos, ypos)
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+        # Creates the collectable image.
         self.image = pygame.image.load("spin_collectable.png")
         # Set the position of the sprite
         self.rect = self.image.get_rect()
@@ -302,12 +311,12 @@ class Spin(Path):
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.spin_collectable_group.remove(self)
-        
+
 
   ##  def remove_from_group(self):
         # removes path from path group.
@@ -339,140 +348,145 @@ class Spin(Path):
          #   self.spawn()
         #Next count
 
+# Defines the sprite class TurboBoost which is a subclass of 'Path'.
 class TurboBoost(Path):
-    
-    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
-        
-        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+
+    # Defines the constructor.
+    def __init__(self, myGame, xpos, ypos):
+
+        # Calls the sprite constructor.
+        super().__init__(myGame, xpos, ypos)
+        # Creates the collectable image.
         self.image = pygame.image.load("turbo_collectable.png")
-        # Set the position of the sprite
+        # Set the position of the sprite.
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method.
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.turbo_collectable_group.remove(self)
 
+
+# Defines the sprite class IcePath which is a subclass of 'Path'.
 class IcePath(Path):
-    
-    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
-        
-        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+
+    # Defines the sprite constructor.
+    def __init__(self, myGame, xpos, ypos):
+
+        # Calls the sprite constructor.
+        super().__init__(myGame, xpos, ypos)
+        # Creates the collectable image.
         self.image = pygame.image.load("ice_collectable.png")
-        # Set the position of the sprite
+        # Set the position of the sprite.
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method.
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.ice_collectable_group.remove(self)
+            
 
+# Defines the sprite class Giant which is a subclass of 'Path'.
 class Giant(Path):
-    
-    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
+
+    # Defines the constructor.
+    def __init__(self, myGame, xpos, ypos):
         
-        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+        # Calls the sprite constructor.
+        super().__init__(myGame, xpos, ypos)
+        # Creates the collectable image.
         self.image = pygame.image.load("giant_collectable.png")
-        # Set the position of the sprite
+        # Set the position of the sprite.
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method.
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.giant_collectable_group.remove(self)
+            
 
+# Defines the sprite class Small which is a subclass of 'Path'.
 class Small(Path):
     
-    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
-        
-        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+    # Defines the constructor.
+    def __init__(self, myGame, xpos, ypos):
+
+        # Calls the sprite constructor.
+        super().__init__(myGame, xpos, ypos)
+        # Creates the collectable image.
         self.image = pygame.image.load("small_collectable.png")
-        # Set the position of the sprite
+        # Set the position of the sprite.
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method.
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.small_collectable_group.remove(self)
 
+
+# Defines the sprite class Sports which is a subclass of 'Path'.
 class Sports(Path):
-    
-    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
-        
-        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+
+    # Defines the constructor.
+    def __init__(self, myGame, xpos, ypos):
+
+        # Calls the sprite constructor.
+        super().__init__(myGame, xpos, ypos)
+        # Creates the collectable image.
         self.image = pygame.image.load("sports_car_collectable.png")
-        # Set the position of the sprite
+        # Set the position of the sprite.
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method.
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.sports_collectable_group.remove(self)
 
+            
+# Defines the sprite class Random which is a subclass of 'Path'.
 class Random(Path):
-    
-    def __init__(self, myGame, xpos, ypos):  # you can pass some other properties
-        
-        super().__init__(myGame, xpos, ypos)  # you must pass required args to Alien's __init__
-        #self.width = 20
-        #self.height = 20
-        #self.image = pygame.Surface([self.width,self.height])
-        #self.image.fill(YELLOW)
+
+    # Defines the constructor.    
+    def __init__(self, myGame, xpos, ypos):
+
+        # Calls the sprite constructor.
+        super().__init__(myGame, xpos, ypos)
+        # Create the collectable image.
         self.image = pygame.image.load("random_collectable.png")
-        # Set the position of the sprite
+        # Set the position of the sprite.
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
 
     def update(self):
 
-        # inlcuedes path update loop.
+        # Calls the path update method.
         super().update()
-        # removes path from path group.
+        # Removes collectables from group once behind player.
         if self.rect.x < 30:
             self.my_Game.random_collectable_group.remove(self)
